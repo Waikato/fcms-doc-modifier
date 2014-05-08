@@ -18,15 +18,15 @@ import os
 from setuptools import setup
 
 setup(
-    name="pypdf-page-numberer",
-    description="Simple application for adding page numbers to PDFs.",
-    long_description='''The pypdf-page-numberer package allows you to add
-    page numbers to existing PDFs.''',
-    url="https://github.com/fracpete/pypdf-page-numberer",
+    name="pypdf-doc-modifier",
+    description="Simple application for modifying PDFs.",
+    long_description='''The pypdf-doc-modifier package allows you to modify
+    PDFs, like adding page numbers.''',
+    url="https://github.com/fracpete/pypdf-doc-modifier",
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python',
     ],
     license='GNU General Public License version 3.0 (GPLv3)',
@@ -41,6 +41,7 @@ setup(
     author_email='fracpete at waikato dot ac dot nz',
     install_requires=[
         "PyPDF2",
+        "reportlab"
     ],
 )
 

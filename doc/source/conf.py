@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# pypdf-page-numberer documentation build configuration file, created by
+# pypdf-doc-modifier documentation build configuration file, created by
 # sphinx-quickstart on Sat Apr 12 11:51:06 2014.
 #
 # This file is execfile()d with the current directory set to its
@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pypdf-page-numberer'
+project = u'pypdf-doc-modifier'
 copyright = u'2014, Peter "fracpete" Reutemann'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -178,7 +178,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pypdf-page-numbererdoc'
+htmlhelp_basename = 'pypdf-doc-modifier'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -198,7 +198,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'pypdf-page-numberer.tex', u'pypdf-page-numberer Documentation',
+  ('index', 'pypdf-doc-modifier.tex', u'pypdf-doc-modifier Documentation',
    u'Peter "fracpete" Reutemann', 'manual'),
 ]
 
@@ -228,7 +228,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pypdf-page-numberer', u'pypdf-page-numberer Documentation',
+    ('index', 'pypdf-doc-modifier', u'pypdf-doc-modifier Documentation',
      [u'Peter "fracpete" Reutemann'], 1)
 ]
 
@@ -242,8 +242,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'pypdf-page-numberer', u'pypdf-page-numberer Documentation',
-   u'Peter "fracpete" Reutemann', 'pypdf-page-numberer', 'One line description of project.',
+  ('index', 'pypdf-doc-modifier', u'pypdf-doc-modifier Documentation',
+   u'Peter "fracpete" Reutemann', 'pypdf-doc-modifier', 'Application for modifying PDF documents.',
    'Miscellaneous'),
 ]
 

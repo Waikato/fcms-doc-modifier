@@ -1,11 +1,13 @@
-pypdf-page-numberer
-===================
+pypdf-doc-modifier
+==================
 
-Little Pyhon helper application that adds page numbers to PDFs.
+Little Pyhon helper application for modifying PDF documents, like adding
+page numbers.
 
 
 Requirements
 ------------
 
 * PyPDF2
+* reportlab
 

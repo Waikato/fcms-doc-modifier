@@ -12,7 +12,7 @@ Contents
 Introduction
 ============
 
-*pypdf-page-numberer* allows you to add page numbers to existing PDF files.
+*pypdf-doc-modifier* allows you to modify PDF documents, like adding page numbers.
 
 
 Requirements
@@ -21,3 +21,5 @@ Requirements
 The library has the following requirements:
 
 * PyPDF2
+* reportlab
+
