@@ -11,3 +11,4 @@ Requirements
 * PyPDF2
 * reportlab
 
+You can install those requirements using `pip install <name>`.
