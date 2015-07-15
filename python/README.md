@@ -1,5 +1,5 @@
-pypdf-doc-modifier
-==================
+fcms-doc-modifier (python)
+==========================
 
 Little Pyhon helper application for modifying PDF documents, like adding
 page numbers.
