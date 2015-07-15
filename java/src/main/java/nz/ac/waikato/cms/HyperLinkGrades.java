@@ -157,21 +157,26 @@ public class HyperLinkGrades
    *
    * @param file	the PDF file to extract the content from
    * @param expr	the regular expression to use for matching
-   * @param caseSens	whether the matching is case-sensitive, if not mateched against lower case
+   * @param caseSens	whether the matching is case-sensitive, if not matched against lower case
+   * @param noCompletions	whether to exclude students that completed their studies
    * @return		the locations
    */
-  public static List<Location> locate(File file, String expr, boolean caseSens) {
+  public static List<Location> locate(File file, String expr, boolean caseSens, boolean noCompletions) {
     List<Location>		locations;
     PDDocument 			document;
     int				i;
+    int				n;
+    int				m;
     PDPageTree 			tree;
     CSTextExtractor 		extractor;
     PDPage 			page;
     AffineTransform 		pageTx;
     CSDeviceBasedInterpreter 	interpreter;
     String[]			lines;
-    String			tomatch;
+    String			line;
+    String 			toMatch;
     Pattern			pattern;
+    boolean			add;
 
     locations = new ArrayList<>();
     pattern = Pattern.compile(expr);
@@ -189,11 +194,28 @@ public class HyperLinkGrades
 	  interpreter = new CSDeviceBasedInterpreter(null, extractor);
 	  interpreter.process(page.getContentStream(), page.getResources());
 	  lines = extractor.getContent().split("\n");
-	  for (String line: lines) {
-	    tomatch = line;
+	  for (n = 0; n < lines.length; n++) {
+	    line    = lines[n];
+	    toMatch = line;
 	    if (!caseSens)
-	      tomatch = tomatch.toLowerCase();
-	    if (pattern.matcher(tomatch).matches())
+	      toMatch = toMatch.toLowerCase();
+	    if (!pattern.matcher(toMatch).matches())
+	      continue;
+	    // check whether student already completed studies
+	    add = true;
+	    if (noCompletions) {
+	      for (m = n - 1; m >= 0; m--) {
+		toMatch = lines[m].toLowerCase();
+		if (toMatch.contains("pass") && toMatch.contains("fail") && toMatch.contains("other")) {
+		  add = !(toMatch.contains("completion confirmed"));
+		  break;
+		}
+		else if (toMatch.contains("----")) {
+		  break;
+		}
+	      }
+	    }
+	    if (add)
 	      locations.add(new Location(i, line));
 	  }
 	}
@@ -260,26 +282,31 @@ public class HyperLinkGrades
    *   <li>the regular expression for matching the text</li>
    *   <li>output PDF</li>
    *   <li>case-sensitive [true|false] (using lower case if insensitive)</li>
+   *   <li>no completions [true|false]</li>
    * </ol>
    * @param args
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    if (!((args.length == 3) || (args.length == 4))) {
+    if ((args.length < 3) || (args.length > 5)) {
       System.err.println("Requires three parameters:");
       System.err.println("1. input PDF");
       System.err.println("2. the regular expression for matching the text");
       System.err.println("3. output PDF");
       System.err.println("4. [option] case-sensitive <true|false> (using lower case if insensitive)");
+      System.err.println("5. [option] no completions <true|false>");
       System.exit(1);
     }
 
     boolean caseSens = true;
     if (args.length > 3)
       caseSens = args[3].equalsIgnoreCase("true");
+    boolean noCompletions = false;
+    if (args.length > 4)
+      noCompletions = args[4].equalsIgnoreCase("true");
 
     // 1. locate
-    List<Location> locations = locate(new File(args[0]), args[1], caseSens);
+    List<Location> locations = locate(new File(args[0]), args[1], caseSens, noCompletions);
 
     // 2. add index
     addIndex(locations, new File(args[0]), new File(args[2]));
