@@ -84,6 +84,9 @@ hs_err_pid*
 *~
 *.swp
 
-# weka package
+# maven
 target
+
+# IntelliJ IDEA
+*.iml
 
