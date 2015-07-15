@@ -14,7 +14,7 @@
  */
 
 /**
- * HyperLink.java
+ * HyperLinkGrades.java
  * Copyright (C) 2015 University of Waikato, Hamilton, NZ
  */
 
@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class HyperLink
+public class HyperLinkGrades
   implements Serializable {
 
   private static final long serialVersionUID = 3325293041459735332L;
