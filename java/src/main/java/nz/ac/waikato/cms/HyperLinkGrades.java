@@ -152,6 +152,62 @@ public class HyperLinkGrades
   }
 
   /**
+   * Returns the student data.
+   *
+   * @param lines	the current page
+   * @param index	the line index to work backwards from
+   * @return		true if already completed
+   */
+  protected static String getStudentData(String[] lines, int index) {
+    String	result;
+    String	toMatch;
+    int		m;
+
+    result = "";
+
+    for (m = index - 1; m >= 0; m--) {
+      toMatch = lines[m].toLowerCase();
+      if (toMatch.contains("pass") && toMatch.contains("fail") && toMatch.contains("other")) {
+	result = lines[m].replaceAll("(.*)([0-9][0-9][0-9][0-9][0-9][0-9][0-9]*).*", "$1$2").replaceAll("  ", "");
+	break;
+      }
+      else if (toMatch.contains("----")) {
+	break;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Checks whether the student has already completed the studies.
+   *
+   * @param lines	the current page
+   * @param index	the line index to work backwards from
+   * @return		true if already completed
+   */
+  protected static boolean hasCompleted(String[] lines, int index) {
+    boolean	result;
+    String	toMatch;
+    int		m;
+
+    result = false;
+
+    for (m = index - 1; m >= 0; m--) {
+      toMatch = lines[m].toLowerCase();
+      if (toMatch.contains("pass") && toMatch.contains("fail") && toMatch.contains("other")) {
+	result = (toMatch.contains("completion confirmed"));
+	break;
+      }
+      else if (toMatch.contains("----")) {
+	break;
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Extracts locations of text from the specified PDF file that matches the
    * regular expression.
    *
@@ -176,7 +232,6 @@ public class HyperLinkGrades
     String			line;
     String 			toMatch;
     Pattern			pattern;
-    boolean			add;
 
     locations = new ArrayList<>();
     pattern = Pattern.compile(expr);
@@ -202,21 +257,9 @@ public class HyperLinkGrades
 	    if (!pattern.matcher(toMatch).matches())
 	      continue;
 	    // check whether student already completed studies
-	    add = true;
-	    if (noCompletions) {
-	      for (m = n - 1; m >= 0; m--) {
-		toMatch = lines[m].toLowerCase();
-		if (toMatch.contains("pass") && toMatch.contains("fail") && toMatch.contains("other")) {
-		  add = !(toMatch.contains("completion confirmed"));
-		  break;
-		}
-		else if (toMatch.contains("----")) {
-		  break;
-		}
-	      }
-	    }
-	    if (add)
-	      locations.add(new Location(i, line));
+	    if (noCompletions && hasCompleted(lines, n))
+	      continue;
+	    locations.add(new Location(i, line + " [" + getStudentData(lines, n) + "]"));
 	  }
 	}
       }
