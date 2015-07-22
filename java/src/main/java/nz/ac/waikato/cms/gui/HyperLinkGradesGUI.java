@@ -20,6 +20,9 @@
 
 package nz.ac.waikato.cms.gui;
 
+import nz.ac.waikato.cms.core.FileUtils;
+import nz.ac.waikato.cms.doc.HyperLinkGrades;
+import nz.ac.waikato.cms.doc.HyperLinkGrades.Location;
 import nz.ac.waikato.cms.gui.core.BaseDirectoryChooser;
 import nz.ac.waikato.cms.gui.core.BaseFileChooser;
 import nz.ac.waikato.cms.gui.core.BaseFrame;
@@ -34,17 +37,25 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * For hyperlinking pages in PDFs where Grades were found that matched a
@@ -93,7 +104,7 @@ public class HyperLinkGradesGUI
   protected JCheckBox m_CheckBoxCaseSensitive;
 
   /** the checkbox for excluding completions. */
-  protected JCheckBox m_CheckBoxExlcudeCompletions;
+  protected JCheckBox m_CheckBoxExcludeCompletions;
 
   /** the button for indexing the files. */
   protected JButton m_ButtonIndex;
@@ -125,8 +136,9 @@ public class HyperLinkGradesGUI
    * Initializes the widgets.
    */
   protected void initGUI() {
-    JPanel	panelFiles;
-    JPanel	panelParams;
+    JPanel		panelFiles;
+    JPanel		panelParams;
+    List<JLabel>	labels;
 
     setLayout(new BorderLayout());
 
@@ -195,10 +207,126 @@ public class HyperLinkGradesGUI
     }
 
     // the parameters
+    labels      = new ArrayList<>();
     panelParams = new JPanel(new GridLayout(5, 1));
-    add(panelParams, BorderLayout.SOUTH);
+    panelFiles.add(panelParams, BorderLayout.SOUTH);
+    // expression
     {
-      // TODO
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+      panelParams.add(panel);
+      m_TextExpression = new JTextField(30);
+      m_TextExpression.getDocument().addDocumentListener(new DocumentListener() {
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+	  checkExpression();
+	}
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+	  checkExpression();
+	}
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+	  checkExpression();
+	}
+	protected void checkExpression() {
+	  if (m_TextExpression.getText().trim().isEmpty() || isValidExpression())
+	    m_TextExpression.setForeground(Color.BLACK);
+	  else
+	    m_TextExpression.setForeground(Color.RED);
+	  updateButtons();
+	}
+      });
+      JLabel label = new JLabel("Expression");
+      label.setDisplayedMnemonic('x');
+      label.setLabelFor(m_TextExpression);
+      panel.add(label);
+      panel.add(m_TextExpression);
+      labels.add(label);
+    }
+    // output dir
+    {
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+      panelParams.add(panel);
+      m_TextOutputDir = new JTextField(30);
+      m_TextOutputDir.getDocument().addDocumentListener(new DocumentListener() {
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+	  checkDir();
+	}
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+	  checkDir();
+	}
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+	  checkDir();
+	}
+	protected void checkDir() {
+	  if (m_TextOutputDir.getText().trim().isEmpty() || isValidOutputDir())
+	    m_TextOutputDir.setForeground(Color.BLACK);
+	  else
+	    m_TextOutputDir.setForeground(Color.RED);
+	  updateButtons();
+	}
+      });
+      JLabel label = new JLabel("Output directory");
+      label.setDisplayedMnemonic('O');
+      label.setLabelFor(m_TextOutputDir);
+
+      m_ButtonOutputDir = new JButton("...");
+      m_ButtonOutputDir.setPreferredSize(new Dimension((int) m_ButtonOutputDir.getPreferredSize().getWidth(), (int) m_TextOutputDir.getPreferredSize().getHeight()));
+      m_ButtonOutputDir.addActionListener(new ActionListener() {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+	  if (!m_TextOutputDir.getText().isEmpty())
+	    m_DirChooser.setCurrentDirectory(new File(m_TextOutputDir.getText()));
+	  int retVal = m_DirChooser.showOpenDialog(HyperLinkGradesGUI.this);
+	  if (retVal != BaseDirectoryChooser.APPROVE_OPTION)
+	    return;
+	  m_TextOutputDir.setText(m_DirChooser.getSelectedFile().getAbsolutePath());
+	}
+      });
+
+      panel.add(label);
+      panel.add(m_TextOutputDir);
+      panel.add(m_ButtonOutputDir);
+      labels.add(label);
+    }
+    // suffix
+    {
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+      panelParams.add(panel);
+      m_TextSuffix = new JTextField(30);
+      JLabel label = new JLabel("Suffix");
+      label.setDisplayedMnemonic('S');
+      label.setLabelFor(m_TextSuffix);
+      panel.add(label);
+      panel.add(m_TextSuffix);
+      labels.add(label);
+    }
+    // case sensitive
+    {
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+      panelParams.add(panel);
+      m_CheckBoxCaseSensitive = new JCheckBox("");
+      JLabel label = new JLabel("Case-sensitive matching");
+      label.setDisplayedMnemonic('m');
+      label.setLabelFor(m_CheckBoxCaseSensitive);
+      panel.add(label);
+      panel.add(m_CheckBoxCaseSensitive);
+      labels.add(label);
+    }
+    // no completions
+    {
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+      panelParams.add(panel);
+      m_CheckBoxExcludeCompletions = new JCheckBox("");
+      JLabel label = new JLabel("Exclude completions");
+      label.setDisplayedMnemonic('p');
+      label.setLabelFor(m_CheckBoxExcludeCompletions);
+      panel.add(label);
+      panel.add(m_CheckBoxExcludeCompletions);
+      labels.add(label);
     }
 
     // the buttons at the bottom
@@ -232,6 +360,17 @@ public class HyperLinkGradesGUI
       });
       panelRight.add(m_ButtonClose);
     }
+
+    // adjust labels
+    validate();
+    int max = 0;
+    for (JLabel label: labels) {
+      if (label.getPreferredSize().getWidth() > max)
+	max = (int) label.getPreferredSize().getWidth();
+    }
+    max += 5;
+    for (JLabel label: labels)
+      label.setPreferredSize(new Dimension(max, (int) label.getPreferredSize().getHeight()));
   }
 
   /**
@@ -258,14 +397,23 @@ public class HyperLinkGradesGUI
       protected Object doInBackground() throws Exception {
 	m_Errors = new StringBuilder();
 	for (int i = 0; i < m_ModelInputFiles.getSize(); i++) {
-	  File file = m_ModelInputFiles.get(i);
+	  File fileIn = m_ModelInputFiles.get(i);
+	  File fileOut = FileUtils.replaceExtension(fileIn, m_TextSuffix.getText() + ".pdf");
 	  m_LabelProgress.setText("Processing " + (i+1) + "/" + m_ModelInputFiles.getSize() + "...");
 	  try {
-
+	    List<Location> locations = HyperLinkGrades.locate(
+	      fileIn,
+	      m_TextExpression.getText(),
+	      m_CheckBoxCaseSensitive.isSelected(),
+	      m_CheckBoxExcludeCompletions.isSelected());
+	    HyperLinkGrades.addIndex(
+	      locations,
+	      fileIn,
+	      fileOut);
 	  }
 	  catch (Exception e) {
-	    m_Errors.append("Failed to process: " + file + "\n");
-	    System.err.println("Failed to process: " + file);
+	    m_Errors.append("Failed to process: " + fileIn + "\n");
+	    System.err.println("Failed to process: " + fileIn);
 	    e.printStackTrace();
 	  }
 	}
@@ -277,13 +425,71 @@ public class HyperLinkGradesGUI
 	m_Processing = false;
 	updateButtons();
 	if (m_Errors.length() > 0) {
-	  // TODO display error message
+	  JOptionPane.showMessageDialog(
+	    HyperLinkGradesGUI.this,
+	    m_Errors.toString(),
+	    "Error",
+	    JOptionPane.ERROR_MESSAGE);
 	}
 	super.done();
       }
     };
 
     worker.execute();
+  }
+
+  /**
+   * Returns whether the expression is valid.
+   *
+   * @return		true if valid
+   */
+  protected boolean isValidExpression() {
+    if (m_TextExpression.getText().trim().isEmpty())
+      return false;
+
+    try {
+      Pattern.compile(m_TextExpression.getText());
+      return true;
+    }
+    catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
+   * Returns whether the output dir is valid.
+   *
+   * @return		true if valid
+   */
+  protected boolean isValidOutputDir() {
+    File	file;
+
+    if (m_TextOutputDir.getText().trim().isEmpty())
+      return false;
+
+    try {
+      file = new File(m_TextOutputDir.getText());
+      return file.exists() && file.isDirectory();
+    }
+    catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
+   * Returns whether files can be indexed.
+   *
+   * @return		true if possible
+   */
+  protected boolean canIndexFiles() {
+    boolean	result;
+
+    result = !m_Processing
+      && (m_ModelInputFiles.getSize() > 0)
+      && isValidExpression()
+      && isValidOutputDir();
+
+    return result;
   }
 
   /**
@@ -295,7 +501,7 @@ public class HyperLinkGradesGUI
     m_ButtonRemoveAllFiles.setEnabled(!m_Processing && (m_ModelInputFiles.getSize() > 0));
 
     m_ButtonClose.setEnabled(!m_Processing);
-    m_ButtonIndex.setEnabled(!m_Processing && (m_ModelInputFiles.getSize() > 0));
+    m_ButtonIndex.setEnabled(canIndexFiles());
   }
 
   /**
