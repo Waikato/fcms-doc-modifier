@@ -259,7 +259,7 @@ public class HyperLinkGradesGUI
 	m_Errors = new StringBuilder();
 	for (int i = 0; i < m_ModelInputFiles.getSize(); i++) {
 	  File file = m_ModelInputFiles.get(i);
-	  m_LabelProgress.setText("Processing " + file.getName() + "...");
+	  m_LabelProgress.setText("Processing " + (i+1) + "/" + m_ModelInputFiles.getSize() + "...");
 	  try {
 
 	  }
