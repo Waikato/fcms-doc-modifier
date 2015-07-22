@@ -21,6 +21,7 @@
 package nz.ac.waikato.cms.gui.core;
 
 import javax.swing.JFileChooser;
+import java.awt.Dimension;
 import java.io.File;
 
 /**
@@ -81,6 +82,8 @@ public class BaseFileChooser
     panel = new DirectoryBookmarks.FileChooserBookmarksPanel();
     panel.setOwner(this);
     setAccessory(panel);
+
+    setPreferredSize(new Dimension(750, 500));
   }
 
   /**
