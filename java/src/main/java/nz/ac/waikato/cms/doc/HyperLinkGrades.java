@@ -18,7 +18,7 @@
  * Copyright (C) 2015 University of Waikato, Hamilton, NZ
  */
 
-package nz.ac.waikato.cms;
+package nz.ac.waikato.cms.doc;
 
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
