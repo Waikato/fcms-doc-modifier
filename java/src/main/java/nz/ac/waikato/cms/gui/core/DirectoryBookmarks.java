@@ -24,6 +24,7 @@ import com.googlecode.jfilechooserbookmarks.AbstractBookmarksPanel;
 import com.googlecode.jfilechooserbookmarks.AbstractFactory;
 import com.googlecode.jfilechooserbookmarks.AbstractPropertiesHandler;
 import com.googlecode.jfilechooserbookmarks.DefaultFactory;
+import nz.ac.waikato.cms.core.OS;
 
 import java.io.File;
 
@@ -39,7 +40,10 @@ public class DirectoryBookmarks {
     extends AbstractPropertiesHandler {
 
     protected String getFilename() {
-      return System.getProperty("user.home") + File.separator + "fcms.props";
+      if (OS.isWindows())
+        return System.getProperty("user.home") + File.separator + "fcms.props";
+      else
+        return System.getProperty("user.home") + File.separator + ".config" + File.separator + "fcms" + File.separator + "bookmarks.props";
     }
   }
 
