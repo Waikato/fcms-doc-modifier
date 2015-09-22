@@ -337,8 +337,8 @@ public class HyperLinkGrades
    *   <li>input PDF</li>
    *   <li>the regular expression for matching the text</li>
    *   <li>output PDF</li>
-   *   <li>[optional] case-sensitive [true|false] (using lower case if insensitive)</li>
-   *   <li>[optional] no completions [true|false]</li>
+   *   <li>case-sensitive [true|false] (using lower case if insensitive)</li>
+   *   <li>no completions [true|false]</li>
    * </ol>
    * Use -h/--help to display help:
    *
