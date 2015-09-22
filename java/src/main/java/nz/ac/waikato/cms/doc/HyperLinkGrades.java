@@ -37,6 +37,9 @@ import de.intarsys.pdf.pd.PDPage;
 import de.intarsys.pdf.pd.PDPageTree;
 import de.intarsys.pdf.tools.kernel.PDFGeometryTools;
 import de.intarsys.tools.locator.FileLocator;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.awt.geom.AffineTransform;
 import java.io.File;
@@ -319,39 +322,61 @@ public class HyperLinkGrades
   }
 
   /**
-   * Expects three parameters:
+   * Expects the following parameters:
    * <ol>
    *   <li>input PDF</li>
    *   <li>the regular expression for matching the text</li>
    *   <li>output PDF</li>
-   *   <li>case-sensitive [true|false] (using lower case if insensitive)</li>
-   *   <li>no completions [true|false]</li>
+   *   <li>[optional] case-sensitive [true|false] (using lower case if insensitive)</li>
+   *   <li>[optional] no completions [true|false]</li>
    * </ol>
-   * @param args
-   * @throws Exception
+   * Use -h/--help to display help:
+   *
+   * @param args the arguments
+   * @throws Exception if processing fails (eg file not preset)
    */
   public static void main(String[] args) throws Exception {
-    if ((args.length < 3) || (args.length > 5)) {
-      System.err.println("Requires three parameters:");
-      System.err.println("1. input PDF");
-      System.err.println("2. the regular expression for matching the text");
-      System.err.println("3. output PDF");
-      System.err.println("4. [option] case-sensitive <true|false> (using lower case if insensitive)");
-      System.err.println("5. [option] no completions <true|false>");
-      System.exit(1);
-    }
+    ArgumentParser	parser;
 
-    boolean caseSens = true;
-    if (args.length > 3)
-      caseSens = args[3].equalsIgnoreCase("true");
-    boolean noCompletions = false;
-    if (args.length > 4)
-      noCompletions = args[4].equalsIgnoreCase("true");
+    parser = ArgumentParsers.newArgumentParser("HyperLinkGrades");
+    parser.description("Adds hyperlinks to grade PDFs.");
+    parser.addArgument("input")
+      .metavar("input")
+      .type(String.class)
+      .help("The PDF file to add the hyperlinks to.");
+    parser.addArgument("regexp")
+      .metavar("regexp")
+      .type(String.class)
+      .help("The regular expression for matching the text.");
+    parser.addArgument("output")
+      .metavar("output")
+      .type(String.class)
+      .help("The file to save the modified PDF to.");
+    parser.addArgument("casesensitive")
+      .metavar("case-sensitive")
+      .type(Boolean.class)
+      .dest("casesensitive")
+      .setDefault(false)
+      .help("Whether to use case-sensitive matching (uses lower-case if insensitive).");
+    parser.addArgument("nocompletions")
+      .metavar("nocompletions")
+      .type(Boolean.class)
+      .dest("nocompletions")
+      .setDefault(false)
+      .help("Whether to exclude completions.");
+    Namespace namespace = parser.parseArgs(args);
 
     // 1. locate
-    List<Location> locations = locate(new File(args[0]), args[1], caseSens, noCompletions);
+    List<Location> locations = locate(
+      new File(namespace.getString("input")),
+      namespace.getString("regexp"),
+      namespace.getBoolean("casesensitive"),
+      namespace.getBoolean("nocompletions"));
 
     // 2. add index
-    addIndex(locations, new File(args[0]), new File(args[2]));
+    addIndex(
+      locations,
+      new File(namespace.getString("input")),
+      new File(namespace.getString("output")));
   }
 }

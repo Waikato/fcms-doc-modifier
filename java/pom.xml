@@ -69,6 +69,12 @@
       <artifactId>jide-oss</artifactId>
       <version>3.6.9</version>
     </dependency>
+
+    <dependency>
+      <groupId>net.sourceforge.argparse4j</groupId>
+      <artifactId>argparse4j</artifactId>
+      <version>0.6.0</version>
+    </dependency>
   </dependencies>
 
   <properties>
