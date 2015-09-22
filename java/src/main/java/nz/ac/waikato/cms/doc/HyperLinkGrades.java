@@ -59,6 +59,16 @@ public class HyperLinkGrades
 
   private static final long serialVersionUID = 3325293041459735332L;
 
+  public static final String INPUT = "input";
+
+  public static final String REGEXP = "regexp";
+
+  public static final String OUTPUT = "output";
+
+  public static final String CASESENSITIVE = "casesensitive";
+
+  public static final String NOCOMPLETIONS = "nocompletions";
+
   /**
    * Container for storing location information.
    *
@@ -340,43 +350,43 @@ public class HyperLinkGrades
 
     parser = ArgumentParsers.newArgumentParser("HyperLinkGrades");
     parser.description("Adds hyperlinks to grade PDFs.");
-    parser.addArgument("input")
-      .metavar("input")
+    parser.addArgument(INPUT)
+      .metavar(INPUT)
       .type(String.class)
       .help("The PDF file to add the hyperlinks to.");
-    parser.addArgument("regexp")
-      .metavar("regexp")
+    parser.addArgument(REGEXP)
+      .metavar(REGEXP)
       .type(String.class)
       .help("The regular expression for matching the text.");
-    parser.addArgument("output")
-      .metavar("output")
+    parser.addArgument(OUTPUT)
+      .metavar(OUTPUT)
       .type(String.class)
       .help("The file to save the modified PDF to.");
-    parser.addArgument("casesensitive")
+    parser.addArgument(CASESENSITIVE)
       .metavar("case-sensitive")
       .type(Boolean.class)
-      .dest("casesensitive")
+      .dest(CASESENSITIVE)
       .setDefault(false)
       .help("Whether to use case-sensitive matching (uses lower-case if insensitive).");
-    parser.addArgument("nocompletions")
-      .metavar("nocompletions")
+    parser.addArgument(NOCOMPLETIONS)
+      .metavar(NOCOMPLETIONS)
       .type(Boolean.class)
-      .dest("nocompletions")
+      .dest(NOCOMPLETIONS)
       .setDefault(false)
       .help("Whether to exclude completions.");
     Namespace namespace = parser.parseArgs(args);
 
     // 1. locate
     List<Location> locations = locate(
-      new File(namespace.getString("input")),
-      namespace.getString("regexp"),
-      namespace.getBoolean("casesensitive"),
-      namespace.getBoolean("nocompletions"));
+      new File(namespace.getString(INPUT)),
+      namespace.getString(REGEXP),
+      namespace.getBoolean(CASESENSITIVE),
+      namespace.getBoolean(NOCOMPLETIONS));
 
     // 2. add index
     addIndex(
       locations,
-      new File(namespace.getString("input")),
-      new File(namespace.getString("output")));
+      new File(namespace.getString(INPUT)),
+      new File(namespace.getString(OUTPUT)));
   }
 }
