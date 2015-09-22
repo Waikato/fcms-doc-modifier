@@ -374,7 +374,15 @@ public class HyperLinkGrades
       .dest(NOCOMPLETIONS)
       .setDefault(false)
       .help("Whether to exclude completions.");
-    Namespace namespace = parser.parseArgs(args);
+
+    Namespace namespace;
+    try {
+      namespace = parser.parseArgs(args);
+    }
+    catch (Exception e) {
+      parser.printHelp();
+      return;
+    }
 
     // 1. locate
     List<Location> locations = locate(
