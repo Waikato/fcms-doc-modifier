@@ -24,7 +24,7 @@ Starting the HyperLinkGrades user interface:
   ```
   java -cp "lib/*" \
     nz.ac.waikato.cms.gui.HyperLinkGradesGUI
-```
+  ```
 
 OverlayFilename
 ===============
@@ -51,4 +51,4 @@ Starting the HyperLinkGrades user interface:
   ```
   java -cp "lib/*" \
     nz.ac.waikato.cms.gui.OverlayFilenameGUI
-```
+  ```
