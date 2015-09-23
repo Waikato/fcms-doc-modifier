@@ -39,3 +39,16 @@ java -cp "lib/*" \
   --strippath true \
   --stripext true
 ```
+
+OverlayFilenameGUI
+==================
+
+Starting the HyperLinkGrades user interface:
+
+* Linux/Mac: `bin/overlayfilename`
+* Windows: `bin\overlayfilename.bat`
+* with the following command:
+  ```
+  java -cp "lib/*" \
+    nz.ac.waikato.cms.gui.OverlayFilenameGUI
+```
