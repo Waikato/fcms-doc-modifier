@@ -232,7 +232,7 @@ public class OverlayFilename {
     parser.addArgument("--" + HPOS)
       .metavar(HPOS)
       .type(Integer.class)
-      .setDefault(10)
+      .setDefault(20)
       .help("The horizontal position of the overlay.");
     parser.addArgument("--" + STRIPPATH)
       .metavar(STRIPPATH)
