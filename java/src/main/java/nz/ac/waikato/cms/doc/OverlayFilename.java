@@ -32,12 +32,14 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Overlays the file name of the PDF on the pages.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
- * @version $Revision$
  */
 public class OverlayFilename {
 
@@ -52,6 +54,20 @@ public class OverlayFilename {
   public static final String STRIPPATH = "strippath";
 
   public static final String STRIPEXT = "stripext";
+
+  /**
+   * For filtering PDF files in a directory.
+   *
+   * @author FracPete (fracpete at waikato dot ac dot nz)
+   */
+  public static class PdfFilenameFilter
+    implements FilenameFilter {
+
+    @Override
+    public boolean accept(File dir, String name) {
+      return name.toLowerCase().endsWith(".pdf");
+    }
+  }
 
   /**
    * Performs the overlay.
@@ -139,6 +155,48 @@ public class OverlayFilename {
   }
 
   /**
+   * Determines the input and output files and returns them as array (0=input, 1=output).
+   *
+   * @param input the input file/dir
+   * @param output the output file/dir
+   * @return the matched input/output files
+   */
+  public File[][] determineFiles(File input, File output) {
+    File[][]	result;
+    List<File>	files;
+    int		i;
+
+    if (input.isFile()) {
+      if (output.isFile()) {
+	return new File[][]{
+	  new File[]{input},
+	  new File[]{output}
+	};
+      }
+      else {
+	return new File[][]{
+	  new File[]{input},
+	  new File[]{new File(output.getAbsolutePath() + File.separator + input.getName())}
+	};
+      }
+    }
+
+    if (output.isFile())
+      output = output.getParentFile();
+    files = new ArrayList<>();
+    for (String fname : input.list(new PdfFilenameFilter())) {
+      files.add(new File(input.getAbsolutePath() + File.separator + fname));
+    }
+    result = new File[2][files.size()];
+    for (i = 0; i < files.size(); i++) {
+      result[0][i] = files.get(i);
+      result[1][i] = new File(output.getAbsolutePath() + File.separator + files.get(i).getName());
+    }
+
+    return result;
+  }
+
+  /**
    * Expects the following arguments:
    * <ul>
    *   <li>input -- the input PDF file or dir with PDFs<li/>
@@ -199,13 +257,21 @@ public class OverlayFilename {
     }
 
     OverlayFilename of = new OverlayFilename();
-    of.overlay(
+
+    File[][] files = of.determineFiles(
       new File(namespace.getString(INPUT)),
-      new File(namespace.getString(OUTPUT)),
-      namespace.getInt(VPOS),
-      namespace.getInt(HPOS),
-      namespace.getBoolean(STRIPPATH),
-      namespace.getBoolean(STRIPEXT),
-      null);
+      new File(namespace.getString(OUTPUT)));
+
+    for (int i = 0; i < files[0].length; i++) {
+      System.out.println(files[0][i] + "\n--> " + files[1][i]);
+      of.overlay(
+        files[0][i],
+        files[1][i],
+        namespace.getInt(VPOS),
+        namespace.getInt(HPOS),
+        namespace.getBoolean(STRIPPATH),
+        namespace.getBoolean(STRIPEXT),
+        null);
+    }
   }
 }
