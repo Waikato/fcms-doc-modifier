@@ -337,8 +337,8 @@ public class HyperLinkGrades
    *   <li>input PDF</li>
    *   <li>the regular expression for matching the text</li>
    *   <li>output PDF</li>
-   *   <li>case-sensitive [true|false] (using lower case if insensitive)</li>
-   *   <li>no completions [true|false]</li>
+   *   <li>[optional] --casesensitive {true|false} (using lower case if insensitive)</li>
+   *   <li>[optional] --nocompletions {true|false}</li>
    * </ol>
    * Use -h/--help to display help:
    *
@@ -362,13 +362,13 @@ public class HyperLinkGrades
       .metavar(OUTPUT)
       .type(String.class)
       .help("The file to save the modified PDF to.");
-    parser.addArgument(CASESENSITIVE)
-      .metavar("case-sensitive")
+    parser.addArgument("--" + CASESENSITIVE)
+      .metavar(CASESENSITIVE)
       .type(Boolean.class)
       .dest(CASESENSITIVE)
       .setDefault(false)
       .help("Whether to use case-sensitive matching (uses lower-case if insensitive).");
-    parser.addArgument(NOCOMPLETIONS)
+    parser.addArgument("--" + NOCOMPLETIONS)
       .metavar(NOCOMPLETIONS)
       .type(Boolean.class)
       .dest(NOCOMPLETIONS)
