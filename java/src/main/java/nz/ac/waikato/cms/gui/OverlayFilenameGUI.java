@@ -544,7 +544,7 @@ public class OverlayFilenameGUI
    * @param args	ignored
    */
   public static void main(String[] args) {
-    BaseFrame frame = new BaseFrame("Hyperlink Grades");
+    BaseFrame frame = new BaseFrame("Overlay filename");
     frame.setDefaultCloseOperation(BaseFrame.EXIT_ON_CLOSE);
     OverlayFilenameGUI panel = new OverlayFilenameGUI();
     frame.getRootPane().setLayout(new BorderLayout());
