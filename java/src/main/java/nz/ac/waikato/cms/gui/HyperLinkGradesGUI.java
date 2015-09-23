@@ -342,7 +342,7 @@ public class HyperLinkGradesGUI
       JPanel panelRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       panelBottom.add(panelRight, BorderLayout.EAST);
 
-      m_ButtonIndex = new JButton("Index");
+      m_ButtonIndex = new JButton("Index", GUIHelper.getIcon("run.gif"));
       m_ButtonIndex.addActionListener(new ActionListener() {
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -351,7 +351,7 @@ public class HyperLinkGradesGUI
       });
       panelRight.add(m_ButtonIndex);
 
-      m_ButtonClose = new JButton("Close");
+      m_ButtonClose = new JButton("Close", GUIHelper.getIcon("stop.gif"));
       m_ButtonClose.addActionListener(new ActionListener() {
 	@Override
 	public void actionPerformed(ActionEvent e) {
