@@ -1,18 +1,12 @@
 How to make a release
 =====================
 
-Preparation
------------
-
+* remove `-SNAPSHOT` from version in `pom.xml`
 * Commit/push all changes
-
-
-Maven Central
--------------
-
-* Run the following command to deploy the artifact:
-
+* run the following Maven command:
   ```
-  mvn release:clean release:prepare release:perform
+  mvn clean install
   ```
+* create a new release tag on github (vYYYY.MM.DD) and upload the `-bin.zip`
+* increment version number in `pom.xml` and add `-SNAPSHOT` again
 
