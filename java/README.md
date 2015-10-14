@@ -1,3 +1,16 @@
+GUIChooser
+==========
+
+Starting the user interface:
+
+* Linux/Mac: `bin/run`
+* Windows: `bin\run.bat`
+* with the following command:
+```
+  java -cp "lib/*" \
+    nz.ac.waikato.cms.gui.GUIChooser
+```
+
 HyperLinkGrades
 ===============
 
@@ -16,11 +29,7 @@ java -cp "lib/*" \
 HyperLinkGradesGUI
 ==================
 
-Starting the HyperLinkGrades user interface:
-
-* Linux/Mac: `bin/hyperlinkgrades`
-* Windows: `bin\hyperlinkgrades.bat`
-* with the following command:
+Starting the HyperLinkGrades user interface with the following command:
 ```
   java -cp "lib/*" \
     nz.ac.waikato.cms.gui.HyperLinkGradesGUI
@@ -43,11 +52,7 @@ java -cp "lib/*" \
 OverlayFilenameGUI
 ==================
 
-Starting the HyperLinkGrades user interface:
-
-* Linux/Mac: `bin/overlayfilename`
-* Windows: `bin\overlayfilename.bat`
-* with the following command:
+Starting the HyperLinkGrades user interface with the following command:
 ```
   java -cp "lib/*" \
     nz.ac.waikato.cms.gui.OverlayFilenameGUI

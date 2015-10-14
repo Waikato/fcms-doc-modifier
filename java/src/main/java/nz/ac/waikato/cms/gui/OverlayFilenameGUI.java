@@ -539,17 +539,30 @@ public class OverlayFilenameGUI
   }
 
   /**
+   * Creates a new frame with the GUI.
+   *
+   * @return		the frame
+   */
+  public static BaseFrame createFrame() {
+    BaseFrame 	frame;
+
+    frame = new BaseFrame("Overlay filename");
+    OverlayFilenameGUI panel = new OverlayFilenameGUI();
+    frame.getRootPane().setLayout(new BorderLayout());
+    frame.getRootPane().add(panel);
+    frame.setSize(600, 400);
+
+    return frame;
+  }
+
+  /**
    * Starts the GUI.
    *
    * @param args	ignored
    */
   public static void main(String[] args) {
-    BaseFrame frame = new BaseFrame("Overlay filename");
+    BaseFrame frame = createFrame();
     frame.setDefaultCloseOperation(BaseFrame.EXIT_ON_CLOSE);
-    OverlayFilenameGUI panel = new OverlayFilenameGUI();
-    frame.getRootPane().setLayout(new BorderLayout());
-    frame.getRootPane().add(panel);
-    frame.setSize(600, 400);
     frame.setLocationRelativeTo(null);
     frame.setVisible(true);
   }

@@ -505,17 +505,30 @@ public class HyperLinkGradesGUI
   }
 
   /**
+   * Creates a frame with the GUI.
+   *
+   * @return		the frame
+   */
+  public static BaseFrame createFrame() {
+    BaseFrame   result;
+
+    result = new BaseFrame("Hyperlink Grades");
+    HyperLinkGradesGUI panel = new HyperLinkGradesGUI();
+    result.getRootPane().setLayout(new BorderLayout());
+    result.getRootPane().add(panel);
+    result.setSize(600, 400);
+
+    return result;
+  }
+
+  /**
    * Starts the GUI.
    *
    * @param args	ignored
    */
   public static void main(String[] args) {
-    BaseFrame frame = new BaseFrame("Hyperlink Grades");
+    BaseFrame frame = createFrame();
     frame.setDefaultCloseOperation(BaseFrame.EXIT_ON_CLOSE);
-    HyperLinkGradesGUI panel = new HyperLinkGradesGUI();
-    frame.getRootPane().setLayout(new BorderLayout());
-    frame.getRootPane().add(panel);
-    frame.setSize(600, 400);
     frame.setLocationRelativeTo(null);
     frame.setVisible(true);
   }
