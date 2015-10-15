@@ -20,6 +20,8 @@
 
 package nz.ac.waikato.cms.gui;
 
+import nz.ac.waikato.cms.core.BrowserHelper;
+import nz.ac.waikato.cms.core.Project;
 import nz.ac.waikato.cms.gui.core.BaseFrame;
 import nz.ac.waikato.cms.gui.core.BasePanel;
 import nz.ac.waikato.cms.gui.core.GUIHelper;
@@ -47,6 +49,9 @@ public class GUIChooser
 
   /** the button for overlaying filenames. */
   protected JButton m_ButtonOverlayFilename;
+
+  /** the button for help. */
+  protected JButton m_ButtonHelp;
 
   /** the button for closing the application. */
   protected JButton m_ButtonClose;
@@ -100,6 +105,15 @@ public class GUIChooser
 
     panel.add(new JLabel());
 
+    m_ButtonHelp = new JButton("Help", GUIHelper.getIcon("help.gif"));
+    m_ButtonHelp.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+	BrowserHelper.openURL("https://github.com/fracpete/fcms-doc-modifier/wiki/Java-Tools");
+      }
+    });
+    panel.add(m_ButtonHelp);
+
     m_ButtonClose = new JButton("Close", GUIHelper.getIcon("stop.gif"));
     m_ButtonClose.addActionListener(new ActionListener() {
       @Override
@@ -116,6 +130,7 @@ public class GUIChooser
    * @param args	ignored
    */
   public static void main(String[] args) {
+    Project.initialize();
     BaseFrame frame = new BaseFrame("FCMS Tools");
     frame.setDefaultCloseOperation(BaseFrame.EXIT_ON_CLOSE);
     GUIChooser panel = new GUIChooser();

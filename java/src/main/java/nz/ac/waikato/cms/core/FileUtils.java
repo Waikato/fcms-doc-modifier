@@ -21,6 +21,10 @@
 package nz.ac.waikato.cms.core;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 
 /**
  * Utility class for I/O related actions.
@@ -67,5 +71,81 @@ public class FileUtils {
     }
     
     return result;
+  }
+
+  /**
+   * Closes the stream, if possible, suppressing any exception.
+   *
+   * @param is		the stream to close
+   */
+  public static void closeQuietly(InputStream is) {
+    if (is != null) {
+      try {
+	is.close();
+      }
+      catch (Exception e) {
+	// ignored
+      }
+    }
+  }
+
+  /**
+   * Closes the stream, if possible, suppressing any exception.
+   *
+   * @param os		the stream to close
+   */
+  public static void closeQuietly(OutputStream os) {
+    if (os != null) {
+      try {
+	os.flush();
+      }
+      catch (Exception e) {
+	// ignored
+      }
+      try {
+	os.close();
+      }
+      catch (Exception e) {
+	// ignored
+      }
+    }
+  }
+
+  /**
+   * Closes the reader, if possible, suppressing any exception.
+   *
+   * @param reader	the reader to close
+   */
+  public static void closeQuietly(Reader reader) {
+    if (reader != null) {
+      try {
+	reader.close();
+      }
+      catch (Exception e) {
+	// ignored
+      }
+    }
+  }
+
+  /**
+   * Closes the writer, if possible, suppressing any exception.
+   *
+   * @param writer	the writer to close
+   */
+  public static void closeQuietly(Writer writer) {
+    if (writer != null) {
+      try {
+	writer.flush();
+      }
+      catch (Exception e) {
+	// ignored
+      }
+      try {
+	writer.close();
+      }
+      catch (Exception e) {
+	// ignored
+      }
+    }
   }
 }

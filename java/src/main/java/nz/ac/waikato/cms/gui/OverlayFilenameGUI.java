@@ -20,14 +20,15 @@
 
 package nz.ac.waikato.cms.gui;
 
+import nz.ac.waikato.cms.core.Project;
 import nz.ac.waikato.cms.doc.OverlayFilename;
 import nz.ac.waikato.cms.gui.core.BaseDirectoryChooser;
 import nz.ac.waikato.cms.gui.core.BaseFileChooser;
 import nz.ac.waikato.cms.gui.core.BaseFrame;
-import nz.ac.waikato.cms.gui.core.BasePanel;
 import nz.ac.waikato.cms.gui.core.BaseScrollPane;
 import nz.ac.waikato.cms.gui.core.ExtensionFileFilter;
 import nz.ac.waikato.cms.gui.core.GUIHelper;
+import nz.ac.waikato.cms.gui.core.SetupPanel;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -53,6 +54,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * For overlaying the filename on PDF files.
@@ -61,7 +63,17 @@ import java.util.List;
  * @version $Revision$
  */
 public class OverlayFilenameGUI
-  extends BasePanel {
+  extends SetupPanel {
+
+  public static final String OUTPUT_DIR = "OutputDir";
+
+  public static final String V_POS = "VPos";
+
+  public static final String H_POS = "HPos";
+
+  public static final String STRIP_PATH = "StripPath";
+
+  public static final String STRIP_EXT = "StripExt";
 
   /** the file chooser to use. */
   protected BaseFileChooser m_FileChooser;
@@ -363,7 +375,7 @@ public class OverlayFilenameGUI
       m_ButtonOverlay.addActionListener(new ActionListener() {
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	  indexFiles();
+	  process();
 	}
       });
       panelRight.add(m_ButtonOverlay);
@@ -400,9 +412,9 @@ public class OverlayFilenameGUI
   }
 
   /**
-   * Indexes the files.
+   * Overlays the files.
    */
-  protected void indexFiles() {
+  protected void process() {
     SwingWorker		worker;
 
     m_Processing = true;
@@ -412,6 +424,7 @@ public class OverlayFilenameGUI
       protected StringBuilder m_Errors;
       @Override
       protected Object doInBackground() throws Exception {
+	saveSetup();
 	m_Errors = new StringBuilder();
         OverlayFilename of = new OverlayFilename();
         int vpos = Integer.parseInt(m_TextVPos.getText());
@@ -539,6 +552,37 @@ public class OverlayFilenameGUI
   }
 
   /**
+   * Maps the properties back to the GUI.
+   *
+   * @param props       the properties to use
+   */
+  protected void propsToGUI(Properties props) {
+    m_TextOutputDir.setText(props.getProperty(OUTPUT_DIR, ""));
+    m_TextVPos.setText(props.getProperty(V_POS, "20"));
+    m_TextHPos.setText(props.getProperty(H_POS, "10"));
+    m_CheckBoxStripPath.setSelected(props.getProperty(STRIP_PATH, "false").equals("true"));
+    m_CheckBoxStripExt.setSelected(props.getProperty(STRIP_EXT, "false").equals("true"));
+  }
+
+  /**
+   * Maps the GUI to a properties object.
+   *
+   * @return            the properties
+   */
+  protected Properties guiToProps() {
+    Properties result;
+
+    result = new Properties();
+    result.setProperty(OUTPUT_DIR, m_TextOutputDir.getText());
+    result.setProperty(V_POS, m_TextVPos.getText());
+    result.setProperty(H_POS, m_TextHPos.getText());
+    result.setProperty(STRIP_PATH, "" + m_CheckBoxStripPath.isSelected());
+    result.setProperty(STRIP_EXT, "" + m_CheckBoxStripExt.isSelected());
+
+    return result;
+  }
+
+  /**
    * Creates a new frame with the GUI.
    *
    * @return		the frame
@@ -561,6 +605,7 @@ public class OverlayFilenameGUI
    * @param args	ignored
    */
   public static void main(String[] args) {
+    Project.initialize();
     BaseFrame frame = createFrame();
     frame.setDefaultCloseOperation(BaseFrame.EXIT_ON_CLOSE);
     frame.setLocationRelativeTo(null);

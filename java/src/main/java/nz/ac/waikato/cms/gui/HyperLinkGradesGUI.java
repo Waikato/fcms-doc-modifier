@@ -21,15 +21,16 @@
 package nz.ac.waikato.cms.gui;
 
 import nz.ac.waikato.cms.core.FileUtils;
+import nz.ac.waikato.cms.core.Project;
 import nz.ac.waikato.cms.doc.HyperLinkGrades;
 import nz.ac.waikato.cms.doc.HyperLinkGrades.Location;
 import nz.ac.waikato.cms.gui.core.BaseDirectoryChooser;
 import nz.ac.waikato.cms.gui.core.BaseFileChooser;
 import nz.ac.waikato.cms.gui.core.BaseFrame;
-import nz.ac.waikato.cms.gui.core.BasePanel;
 import nz.ac.waikato.cms.gui.core.BaseScrollPane;
 import nz.ac.waikato.cms.gui.core.ExtensionFileFilter;
 import nz.ac.waikato.cms.gui.core.GUIHelper;
+import nz.ac.waikato.cms.gui.core.SetupPanel;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -55,6 +56,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 /**
@@ -65,7 +67,17 @@ import java.util.regex.Pattern;
  * @version $Revision$
  */
 public class HyperLinkGradesGUI
-  extends BasePanel {
+  extends SetupPanel {
+
+  public static final String EXPRESSION = "Expression";
+
+  public static final String OUTPUT_DIR = "OutputDir";
+
+  public static final String SUFFIX = "Suffix";
+
+  public static final String CASE_SENSITIVE = "CaseSensitive";
+
+  public static final String EXCLUDE_COMPLETIONS = "ExcludeCompletions";
 
   /** the file chooser to use. */
   protected BaseFileChooser m_FileChooser;
@@ -236,7 +248,7 @@ public class HyperLinkGradesGUI
 	  updateButtons();
 	}
       });
-      JLabel label = new JLabel("Expression");
+      JLabel label = new JLabel(EXPRESSION);
       label.setDisplayedMnemonic('x');
       label.setLabelFor(m_TextExpression);
       panel.add(label);
@@ -297,7 +309,7 @@ public class HyperLinkGradesGUI
       JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
       panelParams.add(panel);
       m_TextSuffix = new JTextField(30);
-      JLabel label = new JLabel("Suffix");
+      JLabel label = new JLabel(SUFFIX);
       label.setDisplayedMnemonic('S');
       label.setLabelFor(m_TextSuffix);
       panel.add(label);
@@ -346,7 +358,7 @@ public class HyperLinkGradesGUI
       m_ButtonIndex.addActionListener(new ActionListener() {
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	  indexFiles();
+	  process();
 	}
       });
       panelRight.add(m_ButtonIndex);
@@ -385,7 +397,7 @@ public class HyperLinkGradesGUI
   /**
    * Indexes the files.
    */
-  protected void indexFiles() {
+  protected void process() {
     SwingWorker		worker;
 
     m_Processing = true;
@@ -395,10 +407,11 @@ public class HyperLinkGradesGUI
       protected StringBuilder m_Errors;
       @Override
       protected Object doInBackground() throws Exception {
+	saveSetup();
 	m_Errors = new StringBuilder();
 	for (int i = 0; i < m_ModelInputFiles.getSize(); i++) {
 	  File fileIn = m_ModelInputFiles.get(i);
-	  File fileOut = FileUtils.replaceExtension(fileIn, m_TextSuffix.getText() + ".pdf");
+	  File fileOut = FileUtils.replaceExtension(new File(m_TextOutputDir.getText() + File.separator + fileIn.getName()), m_TextSuffix.getText() + ".pdf");
 	  m_LabelProgress.setText("Processing " + (i+1) + "/" + m_ModelInputFiles.getSize() + "...");
 	  try {
 	    List<Location> locations = HyperLinkGrades.locate(
@@ -505,6 +518,37 @@ public class HyperLinkGradesGUI
   }
 
   /**
+   * Maps the properties back to the GUI.
+   *
+   * @param props       the properties to use
+   */
+  protected void propsToGUI(Properties props) {
+    m_TextExpression.setText(props.getProperty(EXPRESSION, ""));
+    m_TextOutputDir.setText(props.getProperty(OUTPUT_DIR, ""));
+    m_TextSuffix.setText(props.getProperty(SUFFIX, ""));
+    m_CheckBoxCaseSensitive.setSelected(props.getProperty(CASE_SENSITIVE, "false").equals("true"));
+    m_CheckBoxExcludeCompletions.setSelected(props.getProperty(EXCLUDE_COMPLETIONS, "false").equals("true"));
+  }
+
+  /**
+   * Maps the GUI to a properties object.
+   *
+   * @return            the properties
+   */
+  protected Properties guiToProps() {
+    Properties result;
+
+    result = new Properties();
+    result.setProperty(EXPRESSION, m_TextExpression.getText());
+    result.setProperty(OUTPUT_DIR, m_TextOutputDir.getText());
+    result.setProperty(SUFFIX, m_TextSuffix.getText());
+    result.setProperty(CASE_SENSITIVE, "" + m_CheckBoxCaseSensitive.isSelected());
+    result.setProperty(EXCLUDE_COMPLETIONS, "" + m_CheckBoxExcludeCompletions.isSelected());
+
+    return result;
+  }
+
+  /**
    * Creates a frame with the GUI.
    *
    * @return		the frame
@@ -527,6 +571,7 @@ public class HyperLinkGradesGUI
    * @param args	ignored
    */
   public static void main(String[] args) {
+    Project.initialize();
     BaseFrame frame = createFrame();
     frame.setDefaultCloseOperation(BaseFrame.EXIT_ON_CLOSE);
     frame.setLocationRelativeTo(null);
