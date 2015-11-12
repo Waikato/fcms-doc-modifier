@@ -216,9 +216,9 @@ public class HyperLinkGrades
     result = "";
 
     for (m = index - 1; m >= 0; m--) {
-      toMatch = lines[m].toLowerCase();
+      toMatch = lines[m].toLowerCase().trim();
       if (toMatch.contains("pass") && toMatch.contains("fail") && toMatch.contains("other")) {
-	result = lines[m].replaceAll("(.*)([0-9][0-9][0-9][0-9][0-9][0-9][0-9]*).*", "$1$2").replaceAll("  ", "");
+	result = lines[m].trim().replaceAll("(.*)([0-9][0-9][0-9][0-9][0-9][0-9][0-9]*).*", "$1$2").replaceAll("  ", "");
 	break;
       }
       else if (toMatch.contains("----")) {
@@ -304,7 +304,7 @@ public class HyperLinkGrades
 	  lines = extractor.getContent().split("\n");
 	  for (n = 0; n < lines.length; n++) {
 	    line    = lines[n];
-	    toMatch = line;
+	    toMatch = line.trim();
 	    if (!caseSens)
 	      toMatch = toMatch.toLowerCase();
 	    if (!pattern.matcher(toMatch).matches())
@@ -394,14 +394,14 @@ public class HyperLinkGrades
       fwriter = new FileWriter(output);
       bwriter = new BufferedWriter(fwriter);
       bwriter.write("Page\tName\tID");
-      bwriter.newLine();
+      bwriter.write("\n");
       for (Location location: locations) {
 	bwriter.write("" + (location.getPage() + 1));
 	bwriter.write("\t");
 	bwriter.write(location.getName() == null ? "???" : location.getName());
 	bwriter.write("\t");
 	bwriter.write(location.getID() == null ? "???" : location.getID());
-	bwriter.newLine();
+	bwriter.write("\n");
       }
       bwriter.flush();
       return true;
