@@ -357,7 +357,7 @@ public class HyperLinkGradesGUI
 	public void actionPerformed(ActionEvent e) {
 	  if (!m_TextCSVOutput.getText().isEmpty())
 	    m_FileChooserCSV.setSelectedFile(new File(m_TextCSVOutput.getText()));
-	  int retVal = m_FileChooserCSV.showOpenDialog(HyperLinkGradesGUI.this);
+	  int retVal = m_FileChooserCSV.showSaveDialog(HyperLinkGradesGUI.this);
 	  if (retVal != BaseFileChooser.APPROVE_OPTION)
 	    return;
 	  m_TextCSVOutput.setText(m_FileChooserCSV.getSelectedFile().getAbsolutePath());
