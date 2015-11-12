@@ -5,7 +5,7 @@
 
   <groupId>nz.ac.waikato.cms</groupId>
   <artifactId>fcms-doc-modifier</artifactId>
-  <version>0.0.6-SNAPSHOT</version>
+  <version>0.0.6</version>
   <packaging>jar</packaging>
 
   <name>fcms-doc-modifier</name>
