@@ -73,14 +73,19 @@ public class HyperLinkGradesGUI
 
   public static final String OUTPUT_DIR = "OutputDir";
 
+  public static final String CSV_OUTPUT = "CsvOutput";
+
   public static final String SUFFIX = "Suffix";
 
   public static final String CASE_SENSITIVE = "CaseSensitive";
 
   public static final String EXCLUDE_COMPLETIONS = "ExcludeCompletions";
 
-  /** the file chooser to use. */
-  protected BaseFileChooser m_FileChooser;
+  /** the file chooser to use for PDFs. */
+  protected BaseFileChooser m_FileChooserPDF;
+
+  /** the file chooser to use for CSVs. */
+  protected BaseFileChooser m_FileChooserCSV;
 
   /** the directory chooser to use. */
   protected BaseDirectoryChooser m_DirChooser;
@@ -94,6 +99,9 @@ public class HyperLinkGradesGUI
   /** the button for adding files. */
   protected JButton m_ButtonAddFiles;
 
+  /** the button for selecting the CSV output file. */
+  protected JButton m_ButtonSelectCSVOutput;
+
   /** the button for removing selected files. */
   protected JButton m_ButtonRemoveFiles;
 
@@ -105,6 +113,9 @@ public class HyperLinkGradesGUI
 
   /** the output directory. */
   protected JTextField m_TextOutputDir;
+
+  /** the CSV output file. */
+  protected JTextField m_TextCSVOutput;
 
   /** the button for selecting the output directory. */
   protected JButton m_ButtonOutputDir;
@@ -134,10 +145,15 @@ public class HyperLinkGradesGUI
    * Initializes the members.
    */
   protected void initialize() {
-    m_FileChooser = new BaseFileChooser();
-    m_FileChooser.addChoosableFileFilter(ExtensionFileFilter.getPdfFileFilter());
-    m_FileChooser.setAcceptAllFileFilterUsed(false);
-    m_FileChooser.setMultiSelectionEnabled(true);
+    m_FileChooserPDF = new BaseFileChooser();
+    m_FileChooserPDF.addChoosableFileFilter(ExtensionFileFilter.getPdfFileFilter());
+    m_FileChooserPDF.setAcceptAllFileFilterUsed(false);
+    m_FileChooserPDF.setMultiSelectionEnabled(true);
+
+    m_FileChooserCSV = new BaseFileChooser();
+    m_FileChooserCSV.addChoosableFileFilter(ExtensionFileFilter.getCsvFileFilter());
+    m_FileChooserCSV.setAcceptAllFileFilterUsed(false);
+    m_FileChooserCSV.setMultiSelectionEnabled(true);
 
     m_DirChooser = new BaseDirectoryChooser();
 
@@ -184,10 +200,10 @@ public class HyperLinkGradesGUI
       m_ButtonAddFiles.addActionListener(new ActionListener() {
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	  int retVal = m_FileChooser.showOpenDialog(HyperLinkGradesGUI.this);
+	  int retVal = m_FileChooserPDF.showOpenDialog(HyperLinkGradesGUI.this);
 	  if (retVal != BaseFileChooser.APPROVE_OPTION)
 	    return;
-	  File[] files = m_FileChooser.getSelectedFiles();
+	  File[] files = m_FileChooserPDF.getSelectedFiles();
 	  for (File file: files)
 	    m_ModelInputFiles.addElement(file);
 	  updateButtons();
@@ -220,7 +236,7 @@ public class HyperLinkGradesGUI
 
     // the parameters
     labels      = new ArrayList<>();
-    panelParams = new JPanel(new GridLayout(5, 1));
+    panelParams = new JPanel(new GridLayout(6, 1));
     panelFiles.add(panelParams, BorderLayout.SOUTH);
     // expression
     {
@@ -302,6 +318,55 @@ public class HyperLinkGradesGUI
       panel.add(label);
       panel.add(m_TextOutputDir);
       panel.add(m_ButtonOutputDir);
+      labels.add(label);
+    }
+    // csv output 
+    {
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+      panelParams.add(panel);
+      m_TextCSVOutput = new JTextField(30);
+      m_TextCSVOutput.getDocument().addDocumentListener(new DocumentListener() {
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+	  checkDir();
+	}
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+	  checkDir();
+	}
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+	  checkDir();
+	}
+	protected void checkDir() {
+	  if (m_TextCSVOutput.getText().trim().isEmpty() || isValidOutputDir())
+	    m_TextCSVOutput.setForeground(Color.BLACK);
+	  else
+	    m_TextCSVOutput.setForeground(Color.RED);
+	  updateButtons();
+	}
+      });
+      JLabel label = new JLabel("CSV Output");
+      label.setDisplayedMnemonic('V');
+      label.setLabelFor(m_TextCSVOutput);
+
+      m_ButtonSelectCSVOutput = new JButton("...");
+      m_ButtonSelectCSVOutput.setPreferredSize(new Dimension((int) m_ButtonOutputDir.getPreferredSize().getWidth(), (int) m_TextCSVOutput.getPreferredSize().getHeight()));
+      m_ButtonSelectCSVOutput.addActionListener(new ActionListener() {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+	  if (!m_TextCSVOutput.getText().isEmpty())
+	    m_FileChooserCSV.setSelectedFile(new File(m_TextCSVOutput.getText()));
+	  int retVal = m_FileChooserCSV.showOpenDialog(HyperLinkGradesGUI.this);
+	  if (retVal != BaseFileChooser.APPROVE_OPTION)
+	    return;
+	  m_TextCSVOutput.setText(m_FileChooserCSV.getSelectedFile().getAbsolutePath());
+	}
+      });
+
+      panel.add(label);
+      panel.add(m_TextCSVOutput);
+      panel.add(m_ButtonSelectCSVOutput);
       labels.add(label);
     }
     // suffix
@@ -419,10 +484,19 @@ public class HyperLinkGradesGUI
 	      m_TextExpression.getText(),
 	      m_CheckBoxCaseSensitive.isSelected(),
 	      m_CheckBoxExcludeCompletions.isSelected());
-	    HyperLinkGrades.addIndex(
-	      locations,
-	      fileIn,
-	      fileOut);
+	    if (!HyperLinkGrades.addIndex(
+              locations,
+              fileIn,
+              fileOut)) {
+              throw new Exception("Failed to add index!");
+            }
+            if (!m_TextCSVOutput.getText().trim().isEmpty()) {
+              File csv = new File(m_TextCSVOutput.getText());
+              if (!csv.isDirectory()) {
+                if (!HyperLinkGrades.generateCSV(locations, csv))
+                  throw new Exception("Failed to generate CSV: " + csv);
+              }
+            }
 	  }
 	  catch (Exception e) {
 	    m_Errors.append("Failed to process: " + fileIn + "\n");
@@ -525,6 +599,7 @@ public class HyperLinkGradesGUI
   protected void propsToGUI(Properties props) {
     m_TextExpression.setText(props.getProperty(EXPRESSION, ""));
     m_TextOutputDir.setText(props.getProperty(OUTPUT_DIR, ""));
+    m_TextCSVOutput.setText(props.getProperty(CSV_OUTPUT, ""));
     m_TextSuffix.setText(props.getProperty(SUFFIX, ""));
     m_CheckBoxCaseSensitive.setSelected(props.getProperty(CASE_SENSITIVE, "false").equals("true"));
     m_CheckBoxExcludeCompletions.setSelected(props.getProperty(EXCLUDE_COMPLETIONS, "false").equals("true"));
@@ -541,6 +616,7 @@ public class HyperLinkGradesGUI
     result = new Properties();
     result.setProperty(EXPRESSION, m_TextExpression.getText());
     result.setProperty(OUTPUT_DIR, m_TextOutputDir.getText());
+    result.setProperty(CSV_OUTPUT, m_TextCSVOutput.getText());
     result.setProperty(SUFFIX, m_TextSuffix.getText());
     result.setProperty(CASE_SENSITIVE, "" + m_CheckBoxCaseSensitive.isSelected());
     result.setProperty(EXCLUDE_COMPLETIONS, "" + m_CheckBoxExcludeCompletions.isSelected());

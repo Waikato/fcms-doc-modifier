@@ -40,10 +40,13 @@ import de.intarsys.tools.locator.FileLocator;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
+import nz.ac.waikato.cms.core.FileUtils;
 
 import java.awt.geom.AffineTransform;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,9 +68,13 @@ public class HyperLinkGrades
 
   public static final String OUTPUT = "output";
 
+  public static final String CSV = "csv";
+
   public static final String CASESENSITIVE = "casesensitive";
 
   public static final String NOCOMPLETIONS = "nocompletions";
+
+  public static final int MAX_ITEMS_PER_PAGE = 35;
 
   /**
    * Container for storing location information.
@@ -86,15 +93,27 @@ public class HyperLinkGrades
     /** the text that matched. */
     protected String m_Text;
 
+    /** the name. */
+    protected String m_Name;
+
+    /** the id. */
+    protected String m_ID;
+
     /**
      * Initializes the container.
      *
      * @param page	the page
      * @param text	the text that matched
+     * @param id	the ID
+     * @param name	the name
      */
-    public Location(int page, String text) {
+    public Location(int page, String text, String id, String name) {
       m_Page = page;
       m_Text = text;
+      m_ID   = id;
+      m_Name = name;
+      if ((m_Name != null) && m_Name.isEmpty())
+	m_Name = null;
     }
 
     /**
@@ -113,6 +132,24 @@ public class HyperLinkGrades
      */
     public String getText() {
       return m_Text;
+    }
+
+    /**
+     * Returns the extracted ID.
+     *
+     * @return		the ID
+     */
+    public String getID() {
+      return m_ID;
+    }
+
+    /**
+     * Returns the extracted name.
+     *
+     * @return		the name
+     */
+    public String getName() {
+      return m_Name;
     }
 
     /**
@@ -245,6 +282,9 @@ public class HyperLinkGrades
     String			line;
     String 			toMatch;
     Pattern			pattern;
+    String			data;
+    String			id;
+    String			name;
 
     locations = new ArrayList<>();
     pattern = Pattern.compile(expr);
@@ -272,7 +312,10 @@ public class HyperLinkGrades
 	    // check whether student already completed studies
 	    if (noCompletions && hasCompleted(lines, n))
 	      continue;
-	    locations.add(new Location(i, line + " [" + getStudentData(lines, n) + "]"));
+	    data = getStudentData(lines, n);
+	    id   = data.replaceAll("^(.*[^0-9])([0-9]+)$", "$2");
+	    name = data.substring(0, data.length() - id.length()).trim();
+	    locations.add(new Location(i, line + " [" + data + "]", id, name));
 	  }
 	}
       }
@@ -314,11 +357,14 @@ public class HyperLinkGrades
 	ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT, new Phrase(loc), 50, height - 50, 0);
       }
       // add index
-      document.newPage();
       for (int i = 0; i < locations.size(); i++) {
-	Chunk loc = new Chunk("Page " + (locations.get(i).getPage()+1) + ": " + locations.get(i).getText());
-	loc.setAction(PdfAction.gotoLocalPage("loc" + (locations.get(i).getPage()+1), false));
-	ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT, new Phrase(loc), 50, height - 100 - i*20, 0);
+	Location loc = locations.get(i);
+	if (i % MAX_ITEMS_PER_PAGE == 0)
+	  document.newPage();
+	String text = loc.getID() + " " + (loc.getName() == null ? "???" : loc.getName());
+	Chunk chunk = new Chunk("Page " + (loc.getPage()+1) + ": " + text);
+	chunk.setAction(PdfAction.gotoLocalPage("loc" + (loc.getPage()+1), false));
+	ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT, new Phrase(chunk), 50, height - 100 - (i % MAX_ITEMS_PER_PAGE)*20, 0);
       }
       document.close();
 
@@ -332,6 +378,46 @@ public class HyperLinkGrades
   }
 
   /**
+   * Generates the CSV output.
+   *
+   * @param locations	the locations
+   * @param output	the file to write the CSV output to
+   * @return		true if successful
+   */
+  public static boolean generateCSV(List<Location> locations, File output) {
+    BufferedWriter	bwriter;
+    FileWriter		fwriter;
+
+    bwriter = null;
+    fwriter = null;
+    try {
+      fwriter = new FileWriter(output);
+      bwriter = new BufferedWriter(fwriter);
+      bwriter.write("Page\tName\tID");
+      bwriter.newLine();
+      for (Location location: locations) {
+	bwriter.write("" + (location.getPage() + 1));
+	bwriter.write("\t");
+	bwriter.write(location.getName() == null ? "???" : location.getName());
+	bwriter.write("\t");
+	bwriter.write(location.getID() == null ? "???" : location.getID());
+	bwriter.newLine();
+      }
+      bwriter.flush();
+      return true;
+    }
+    catch (Exception e) {
+      System.err.println("Failed to generate CSV: " + output);
+      e.printStackTrace();
+      return false;
+    }
+    finally {
+      FileUtils.closeQuietly(bwriter);
+      FileUtils.closeQuietly(fwriter);
+    }
+  }
+
+  /**
    * Expects the following parameters:
    * <ol>
    *   <li>input PDF</li>
@@ -339,6 +425,7 @@ public class HyperLinkGrades
    *   <li>output PDF</li>
    *   <li>[optional] --casesensitive {true|false} (using lower case if insensitive)</li>
    *   <li>[optional] --nocompletions {true|false}</li>
+   *   <li>[optional] --csv file</li>
    * </ol>
    * Use -h/--help to display help:
    *
@@ -374,6 +461,11 @@ public class HyperLinkGrades
       .dest(NOCOMPLETIONS)
       .setDefault(false)
       .help("Whether to exclude completions.");
+    parser.addArgument(CSV)
+      .metavar(CSV)
+      .setDefault(".")
+      .type(String.class)
+      .help("The CSV file to save the located entries to.");
 
     Namespace namespace;
     try {
@@ -396,5 +488,10 @@ public class HyperLinkGrades
       locations,
       new File(namespace.getString(INPUT)),
       new File(namespace.getString(OUTPUT)));
+
+    // 3. CSV output
+    if (!new File(namespace.getString(CSV)).isDirectory()) {
+      generateCSV(locations, new File(namespace.getString(CSV)));
+    }
   }
 }
