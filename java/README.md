@@ -1,3 +1,17 @@
+Releases
+========
+
+The following releases are available for download:
+
+* [0.0.7](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.7/fcms-doc-modifier-0.0.7-bin.zip)
+* [0.0.6](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.6/fcms-doc-modifier-0.0.6-bin.zip)
+* [0.0.5](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.5/fcms-doc-modifier-0.0.5-bin.zip)
+* [0.0.4](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.4/fcms-doc-modifier-0.0.4-bin.zip)
+* [0.0.3](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.3/fcms-doc-modifier-0.0.3-bin.zip)
+* [0.0.2](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.2/fcms-doc-modifier-0.0.2-bin.zip)
+* [0.0.1](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.1/fcms-doc-modifier-0.0.1-bin.zip)
+
+
 GUIChooser
 ==========
 
