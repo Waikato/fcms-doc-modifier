@@ -15,17 +15,20 @@
 
 /**
  * OverlayFilename.java
- * Copyright (C) 2015 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2015-2016 University of Waikato, Hamilton, NZ
  */
 
 package nz.ac.waikato.cms.doc;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.PdfWriter;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -55,6 +58,8 @@ public class OverlayFilename {
 
   public static final String STRIPEXT = "stripext";
 
+  public static final String EVENPAGES = "event-pages";
+
   /**
    * For filtering PDF files in a directory.
    *
@@ -79,23 +84,32 @@ public class OverlayFilename {
    * @param stripPath	whether to strip the path
    * @param stripExt	whether to strip the extension
    * @param pages	the array of pages (1-based) to add the overlay to, null for all
+   * @param evenPages	whether to enforce even pages in the document
    * @return		true if successfully overlay
    */
-  public boolean overlay(File input, File output, int vpos, int hpos, boolean stripPath, boolean stripExt, int[] pages) {
+  public boolean overlay(File input, File output, int vpos, int hpos, boolean stripPath, boolean stripExt, int[] pages, boolean evenPages) {
     PdfReader 		reader;
     PdfStamper 		stamper;
     FileOutputStream 	fos;
     PdfContentByte 	canvas;
     int 		i;
     String		text;
+    int			numPages;
+    File		tmpFile;
+    Document		document;
+    PdfWriter		writer;
+    PdfImportedPage 	page;
+    PdfContentByte	cb;
 
-    reader  = null;
-    stamper = null;
-    fos     = null;
+    reader   = null;
+    stamper  = null;
+    fos      = null;
+    numPages = -1;
     try {
-      reader  = new PdfReader(input.getAbsolutePath());
-      fos     = new FileOutputStream(output.getAbsolutePath());
-      stamper = new PdfStamper(reader, fos);
+      reader   = new PdfReader(input.getAbsolutePath());
+      fos      = new FileOutputStream(output.getAbsolutePath());
+      stamper  = new PdfStamper(reader, fos);
+      numPages = reader.getNumberOfPages();
       if (pages == null) {
 	pages = new int[reader.getNumberOfPages()];
 	for (i = 0; i < pages.length; i++)
@@ -105,7 +119,7 @@ public class OverlayFilename {
       if (stripPath)
 	text = input.getName();
       else
-        text = input.getAbsolutePath();
+	text = input.getAbsolutePath();
       if (stripExt)
 	text = text.replaceFirst("\\.[pP][dD][fF]$", "");
 
@@ -147,7 +161,75 @@ public class OverlayFilename {
 	}
       }
       catch (Exception e) {
-	 // ignored
+	// ignored
+      }
+    }
+
+    // enforce even pages?
+    if (evenPages && (numPages > 0) && (numPages % 2 == 1)) {
+      reader  = null;
+      fos     = null;
+      writer  = null;
+      tmpFile = new File(output.getAbsolutePath() + "tmp");
+      try {
+	if (!output.renameTo(tmpFile)) {
+	  System.err.println("Failed to rename '" + output + "' to '" + tmpFile + "'!");
+	  return false;
+	}
+	reader   = new PdfReader(tmpFile.getAbsolutePath());
+	document = new Document(reader.getPageSize(1));
+	fos      = new FileOutputStream(output.getAbsoluteFile());
+	writer   = PdfWriter.getInstance(document, fos);
+	document.open();
+	document.addCreationDate();
+	document.addAuthor(System.getProperty("user.name"));
+	cb      = writer.getDirectContent();
+	for (i = 0; i < reader.getNumberOfPages(); i++) {
+	  page = writer.getImportedPage(reader, i+1);
+	  document.newPage();
+	  cb.addTemplate(page, 0, 0);
+	}
+	document.newPage();
+	document.add(new Paragraph(" "));  // fake content
+	document.close();
+      }
+      catch (Exception e) {
+	System.err.println("Failed to process " + tmpFile + ":");
+	e.printStackTrace();
+	return false;
+      }
+      finally {
+	try {
+	  if (fos != null) {
+	    fos.flush();
+	    fos.close();
+	  }
+	}
+	catch (Exception e) {
+	  // ignored
+	}
+	try {
+	  if (reader != null)
+	    reader.close();
+	}
+	catch (Exception e) {
+	  // ignored
+	}
+	try {
+	  if (writer != null)
+	    writer.close();
+	}
+	catch (Exception e) {
+	  // ignored
+	}
+	if (tmpFile.exists()) {
+	  try {
+	    tmpFile.delete();
+	  }
+	  catch (Exception e) {
+	    // ignored
+	  }
+	}
       }
     }
 
@@ -246,6 +328,12 @@ public class OverlayFilename {
       .dest(STRIPEXT)
       .setDefault(false)
       .help("Whether to strip the extension from the filename.");
+    parser.addArgument(EVENPAGES)
+      .metavar(EVENPAGES)
+      .type(Boolean.class)
+      .dest(EVENPAGES)
+      .setDefault(false)
+      .help("Whether to enforce even pages in the document (simply adds an empty one).");
 
     Namespace namespace;
     try {
@@ -265,13 +353,14 @@ public class OverlayFilename {
     for (int i = 0; i < files[0].length; i++) {
       System.out.println(files[0][i] + "\n--> " + files[1][i]);
       of.overlay(
-        files[0][i],
-        files[1][i],
-        namespace.getInt(VPOS),
-        namespace.getInt(HPOS),
-        namespace.getBoolean(STRIPPATH),
-        namespace.getBoolean(STRIPEXT),
-        null);
+	files[0][i],
+	files[1][i],
+	namespace.getInt(VPOS),
+	namespace.getInt(HPOS),
+	namespace.getBoolean(STRIPPATH),
+	namespace.getBoolean(STRIPEXT),
+	null,
+	namespace.getBoolean(EVENPAGES));
     }
   }
 }

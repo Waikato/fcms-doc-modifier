@@ -15,7 +15,7 @@
 
 /**
  * OverlayFilenameGUI.java
- * Copyright (C) 2015 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2015-2016 University of Waikato, Hamilton, NZ
  */
 
 package nz.ac.waikato.cms.gui;
@@ -43,14 +43,12 @@ import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +72,8 @@ public class OverlayFilenameGUI
   public static final String STRIP_PATH = "StripPath";
 
   public static final String STRIP_EXT = "StripExt";
+
+  public static final String ENFORCE_EVEN_PAGES = "EnforceEvenPages";
 
   /** the file chooser to use. */
   protected BaseFileChooser m_FileChooser;
@@ -113,6 +113,9 @@ public class OverlayFilenameGUI
 
   /** the checkbox for stripping the extension. */
   protected JCheckBox m_CheckBoxStripExt;
+
+  /** the checkbox for enforce even pages. */
+  protected JCheckBox m_CheckBoxEnforceEvenPages;
 
   /** the button for overlaying the files. */
   protected JButton m_ButtonOverlay;
@@ -162,12 +165,7 @@ public class OverlayFilenameGUI
       panelFiles.add(panel, BorderLayout.CENTER);
       m_ModelInputFiles = new DefaultListModel<>();
       m_ListInputFiles  = new JList(m_ModelInputFiles);
-      m_ListInputFiles.addListSelectionListener(new ListSelectionListener() {
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-	  updateButtons();
-	}
-      });
+      m_ListInputFiles.addListSelectionListener((ListSelectionEvent e) -> updateButtons());
       panel.add(new BaseScrollPane(m_ListInputFiles), BorderLayout.CENTER);
 
       JPanel panelRight = new JPanel(new BorderLayout());
@@ -177,46 +175,37 @@ public class OverlayFilenameGUI
       panelRight.add(panelButtons, BorderLayout.NORTH);
 
       m_ButtonAddFiles = new JButton("Add...");
-      m_ButtonAddFiles.addActionListener(new ActionListener() {
-	@Override
-	public void actionPerformed(ActionEvent e) {
-	  int retVal = m_FileChooser.showOpenDialog(OverlayFilenameGUI.this);
-	  if (retVal != BaseFileChooser.APPROVE_OPTION)
-	    return;
-	  File[] files = m_FileChooser.getSelectedFiles();
-	  for (File file: files)
-	    m_ModelInputFiles.addElement(file);
-	  updateButtons();
-	}
+      m_ButtonAddFiles.addActionListener((ActionEvent e) -> {
+        int retVal = m_FileChooser.showOpenDialog(OverlayFilenameGUI.this);
+        if (retVal != BaseFileChooser.APPROVE_OPTION)
+          return;
+        File[] files = m_FileChooser.getSelectedFiles();
+        for (File file: files)
+          m_ModelInputFiles.addElement(file);
+        updateButtons();
       });
       panelButtons.add(m_ButtonAddFiles);
 
       m_ButtonRemoveFiles = new JButton("Remove");
-      m_ButtonRemoveFiles.addActionListener(new ActionListener() {
-	@Override
-	public void actionPerformed(ActionEvent e) {
-	  int[] indices = m_ListInputFiles.getSelectedIndices();
-	  for (int i = indices.length - 1; i >= 0; i--)
-	    m_ModelInputFiles.remove(indices[i]);
-	  updateButtons();
-	}
+      m_ButtonRemoveFiles.addActionListener((ActionEvent e) -> {
+        int[] indices = m_ListInputFiles.getSelectedIndices();
+        for (int i = indices.length - 1; i >= 0; i--)
+          m_ModelInputFiles.remove(indices[i]);
+        updateButtons();
       });
       panelButtons.add(m_ButtonRemoveFiles);
 
       m_ButtonRemoveAllFiles = new JButton("Remove all");
-      m_ButtonRemoveAllFiles.addActionListener(new ActionListener() {
-	@Override
-	public void actionPerformed(ActionEvent e) {
-	  m_ModelInputFiles.removeAllElements();
-	  updateButtons();
-	}
+      m_ButtonRemoveAllFiles.addActionListener((ActionEvent e) -> {
+        m_ModelInputFiles.removeAllElements();
+        updateButtons();
       });
       panelButtons.add(m_ButtonRemoveAllFiles);
     }
 
     // the parameters
     labels      = new ArrayList<>();
-    panelParams = new JPanel(new GridLayout(5, 1));
+    panelParams = new JPanel(new GridLayout(6, 1));
     panelFiles.add(panelParams, BorderLayout.SOUTH);
     // output dir
     {
@@ -224,25 +213,25 @@ public class OverlayFilenameGUI
       panelParams.add(panel);
       m_TextOutputDir = new JTextField(30);
       m_TextOutputDir.getDocument().addDocumentListener(new DocumentListener() {
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-	  checkDir();
-	}
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-	  checkDir();
-	}
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-	  checkDir();
-	}
-	protected void checkDir() {
-	  if (m_TextOutputDir.getText().trim().isEmpty() || isValidOutputDir())
-	    m_TextOutputDir.setForeground(Color.BLACK);
-	  else
-	    m_TextOutputDir.setForeground(Color.RED);
-	  updateButtons();
-	}
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+          checkDir();
+        }
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+          checkDir();
+        }
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+          checkDir();
+        }
+        protected void checkDir() {
+          if (m_TextOutputDir.getText().trim().isEmpty() || isValidOutputDir())
+            m_TextOutputDir.setForeground(Color.BLACK);
+          else
+            m_TextOutputDir.setForeground(Color.RED);
+          updateButtons();
+        }
       });
       JLabel label = new JLabel("Output directory");
       label.setDisplayedMnemonic('O');
@@ -250,16 +239,13 @@ public class OverlayFilenameGUI
 
       m_ButtonOutputDir = new JButton("...");
       m_ButtonOutputDir.setPreferredSize(new Dimension((int) m_ButtonOutputDir.getPreferredSize().getWidth(), (int) m_TextOutputDir.getPreferredSize().getHeight()));
-      m_ButtonOutputDir.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          if (!m_TextOutputDir.getText().isEmpty())
-            m_DirChooser.setCurrentDirectory(new File(m_TextOutputDir.getText()));
-          int retVal = m_DirChooser.showOpenDialog(OverlayFilenameGUI.this);
-          if (retVal != BaseDirectoryChooser.APPROVE_OPTION)
-            return;
-          m_TextOutputDir.setText(m_DirChooser.getSelectedFile().getAbsolutePath());
-        }
+      m_ButtonOutputDir.addActionListener((ActionEvent e) -> {
+        if (!m_TextOutputDir.getText().isEmpty())
+          m_DirChooser.setCurrentDirectory(new File(m_TextOutputDir.getText()));
+        int retVal = m_DirChooser.showOpenDialog(OverlayFilenameGUI.this);
+        if (retVal != BaseDirectoryChooser.APPROVE_OPTION)
+          return;
+        m_TextOutputDir.setText(m_DirChooser.getSelectedFile().getAbsolutePath());
       });
 
       panel.add(label);
@@ -273,25 +259,25 @@ public class OverlayFilenameGUI
       panelParams.add(panel);
       m_TextVPos = new JTextField("20", 5);
       m_TextVPos.getDocument().addDocumentListener(new DocumentListener() {
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-	  checkPos();
-	}
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-	  checkPos();
-	}
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-	  checkPos();
-	}
-	protected void checkPos() {
-	  if (m_TextVPos.getText().trim().isEmpty() || isValidVPos())
-	    m_TextVPos.setForeground(Color.BLACK);
-	  else
-	    m_TextVPos.setForeground(Color.RED);
-	  updateButtons();
-	}
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+          checkPos();
+        }
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+          checkPos();
+        }
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+          checkPos();
+        }
+        protected void checkPos() {
+          if (m_TextVPos.getText().trim().isEmpty() || isValidVPos())
+            m_TextVPos.setForeground(Color.BLACK);
+          else
+            m_TextVPos.setForeground(Color.RED);
+          updateButtons();
+        }
       });
       JLabel label = new JLabel("Vertical position");
       label.setDisplayedMnemonic('V');
@@ -306,25 +292,25 @@ public class OverlayFilenameGUI
       panelParams.add(panel);
       m_TextHPos = new JTextField("10", 5);
       m_TextHPos.getDocument().addDocumentListener(new DocumentListener() {
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-	  checkPos();
-	}
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-	  checkPos();
-	}
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-	  checkPos();
-	}
-	protected void checkPos() {
-	  if (m_TextHPos.getText().trim().isEmpty() || isValidHPos())
-	    m_TextHPos.setForeground(Color.BLACK);
-	  else
-	    m_TextHPos.setForeground(Color.RED);
-	  updateButtons();
-	}
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+          checkPos();
+        }
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+          checkPos();
+        }
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+          checkPos();
+        }
+        protected void checkPos() {
+          if (m_TextHPos.getText().trim().isEmpty() || isValidHPos())
+            m_TextHPos.setForeground(Color.BLACK);
+          else
+            m_TextHPos.setForeground(Color.RED);
+          updateButtons();
+        }
       });
       JLabel label = new JLabel("Horizontal position");
       label.setDisplayedMnemonic('H');
@@ -357,6 +343,18 @@ public class OverlayFilenameGUI
       panel.add(m_CheckBoxStripExt);
       labels.add(label);
     }
+    // enforce even pages
+    {
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+      panelParams.add(panel);
+      m_CheckBoxEnforceEvenPages = new JCheckBox("");
+      JLabel label = new JLabel("Enforce even pages");
+      label.setDisplayedMnemonic('f');
+      label.setLabelFor(m_CheckBoxEnforceEvenPages);
+      panel.add(label);
+      panel.add(m_CheckBoxEnforceEvenPages);
+      labels.add(label);
+    }
 
     // the buttons at the bottom
     {
@@ -372,21 +370,11 @@ public class OverlayFilenameGUI
       panelBottom.add(panelRight, BorderLayout.EAST);
 
       m_ButtonOverlay = new JButton("Overlay", GUIHelper.getIcon("run.gif"));
-      m_ButtonOverlay.addActionListener(new ActionListener() {
-	@Override
-	public void actionPerformed(ActionEvent e) {
-	  process();
-	}
-      });
+      m_ButtonOverlay.addActionListener((ActionEvent e) -> process());
       panelRight.add(m_ButtonOverlay);
 
       m_ButtonClose = new JButton("Close", GUIHelper.getIcon("stop.gif"));
-      m_ButtonClose.addActionListener(new ActionListener() {
-	@Override
-	public void actionPerformed(ActionEvent e) {
-	  GUIHelper.closeParent(OverlayFilenameGUI.this);
-	}
-      });
+      m_ButtonClose.addActionListener((ActionEvent e) -> GUIHelper.closeParent(OverlayFilenameGUI.this));
       panelRight.add(m_ButtonClose);
     }
 
@@ -395,7 +383,7 @@ public class OverlayFilenameGUI
     int max = 0;
     for (JLabel label: labels) {
       if (label.getPreferredSize().getWidth() > max)
-	max = (int) label.getPreferredSize().getWidth();
+        max = (int) label.getPreferredSize().getWidth();
     }
     max += 5;
     for (JLabel label: labels)
@@ -424,19 +412,21 @@ public class OverlayFilenameGUI
       protected StringBuilder m_Errors;
       @Override
       protected Object doInBackground() throws Exception {
-	saveSetup();
-	m_Errors = new StringBuilder();
+        saveSetup();
+        m_Errors = new StringBuilder();
         OverlayFilename of = new OverlayFilename();
         int vpos = Integer.parseInt(m_TextVPos.getText());
         int hpos = Integer.parseInt(m_TextHPos.getText());
-	for (int i = 0; i < m_ModelInputFiles.getSize(); i++) {
-	  File fileIn = m_ModelInputFiles.get(i);
-	  File fileOut = new File(m_TextOutputDir.getText());
+        for (int i = 0; i < m_ModelInputFiles.getSize(); i++) {
+          File fileIn = m_ModelInputFiles.get(i);
+          File fileOut = new File(m_TextOutputDir.getText());
           m_LabelProgress.setText("Processing " + (i + 1) + "/" + m_ModelInputFiles.getSize() + "...");
           File files[][] = of.determineFiles(fileIn, fileOut);
           for (int n = 0; n < files[0].length; n++) {
             try {
-              of.overlay(files[0][n], files[1][n], vpos, hpos, m_CheckBoxStripPath.isSelected(), m_CheckBoxStripExt.isSelected(), null);
+              of.overlay(files[0][n], files[1][n], vpos, hpos,
+                m_CheckBoxStripPath.isSelected(), m_CheckBoxStripExt.isSelected(),
+                null, m_CheckBoxEnforceEvenPages.isSelected());
             }
             catch (Exception e) {
               m_Errors.append("Failed to process: " + files[0][n] + " -> " + files[1][n] + "\n");
@@ -445,21 +435,21 @@ public class OverlayFilenameGUI
             }
           }
         }
-	return null;
+        return null;
       }
       @Override
       protected void done() {
-	m_LabelProgress.setText("");
-	m_Processing = false;
-	updateButtons();
-	if (m_Errors.length() > 0) {
-	  JOptionPane.showMessageDialog(
-	    OverlayFilenameGUI.this,
-	    m_Errors.toString(),
-	    "Error",
-	    JOptionPane.ERROR_MESSAGE);
-	}
-	super.done();
+        m_LabelProgress.setText("");
+        m_Processing = false;
+        updateButtons();
+        if (m_Errors.length() > 0) {
+          JOptionPane.showMessageDialog(
+            OverlayFilenameGUI.this,
+            m_Errors.toString(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        }
+        super.done();
       }
     };
 
@@ -562,6 +552,7 @@ public class OverlayFilenameGUI
     m_TextHPos.setText(props.getProperty(H_POS, "10"));
     m_CheckBoxStripPath.setSelected(props.getProperty(STRIP_PATH, "false").equals("true"));
     m_CheckBoxStripExt.setSelected(props.getProperty(STRIP_EXT, "false").equals("true"));
+    m_CheckBoxEnforceEvenPages.setSelected(props.getProperty(ENFORCE_EVEN_PAGES, "false").equals("true"));
   }
 
   /**
@@ -578,6 +569,7 @@ public class OverlayFilenameGUI
     result.setProperty(H_POS, m_TextHPos.getText());
     result.setProperty(STRIP_PATH, "" + m_CheckBoxStripPath.isSelected());
     result.setProperty(STRIP_EXT, "" + m_CheckBoxStripExt.isSelected());
+    result.setProperty(ENFORCE_EVEN_PAGES, "" + m_CheckBoxEnforceEvenPages.isSelected());
 
     return result;
   }
