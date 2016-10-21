@@ -15,7 +15,7 @@
 
 /*
  * BaseDirectoryChooser.java
- * Copyright (C) 2010-2015 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2010-2016 University of Waikato, Hamilton, New Zealand
  */
 
 package nz.ac.waikato.cms.gui.core;
@@ -29,8 +29,10 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -188,6 +190,12 @@ public class BaseDirectoryChooser
    */
   @Override
   public void addChoosableFileFilter(FileFilter filter) {
+  }
+
+  @Override
+  public int showDialog(Component parent, String approveButtonText) throws HeadlessException {
+    m_PanelBookmarks.reload();
+    return super.showDialog(parent, approveButtonText);
   }
 
   /**

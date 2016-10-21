@@ -15,13 +15,15 @@
 
 /**
  * BaseFileChooser.java
- * Copyright (C) 2015 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2015-2016 University of Waikato, Hamilton, NZ
  */
 
 package nz.ac.waikato.cms.gui.core;
 
 import javax.swing.JFileChooser;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.io.File;
 
 /**
@@ -32,6 +34,9 @@ import java.io.File;
  */
 public class BaseFileChooser
   extends JFileChooser {
+
+  /** the panel with the bookmarks. */
+  protected DirectoryBookmarks.FileChooserBookmarksPanel m_PanelBookmarks;
 
   /**
    * Initializes the file chooser.
@@ -77,11 +82,9 @@ public class BaseFileChooser
    * Initializes the widgets.
    */
   protected void initGUI() {
-    DirectoryBookmarks.FileChooserBookmarksPanel 	panel;
-
-    panel = new DirectoryBookmarks.FileChooserBookmarksPanel();
-    panel.setOwner(this);
-    setAccessory(panel);
+    m_PanelBookmarks = new DirectoryBookmarks.FileChooserBookmarksPanel();
+    m_PanelBookmarks.setOwner(this);
+    setAccessory(m_PanelBookmarks);
 
     setPreferredSize(new Dimension(750, 500));
   }
@@ -90,5 +93,11 @@ public class BaseFileChooser
    * Finishes up the initialization.
    */
   protected void finishInit() {
+  }
+
+  @Override
+  public int showDialog(Component parent, String approveButtonText) throws HeadlessException {
+    m_PanelBookmarks.reload();
+    return super.showDialog(parent, approveButtonText);
   }
 }
