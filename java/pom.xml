@@ -38,20 +38,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>itextpdf</artifactId>
-      <version>5.5.7</version>
-      <type>jar</type>
-    </dependency>
-
-    <dependency>
-      <groupId>com.itextpdf.tool</groupId>
-      <artifactId>xmlworker</artifactId>
-      <version>5.5.7</version>
-      <type>jar</type>
-    </dependency>
-
-    <dependency>
       <groupId>de.intarsys.opensource</groupId>
       <artifactId>jPodRenderer</artifactId>
       <version>5.5.1</version>
@@ -59,15 +45,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.fracpete</groupId>
-      <artifactId>jfilechooser-bookmarks</artifactId>
-      <version>0.1.5</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.jidesoft</groupId>
-      <artifactId>jide-oss</artifactId>
-      <version>3.6.11</version>
+      <groupId>com.github.waikato</groupId>
+      <artifactId>fcms-widgets</artifactId>
+      <version>0.0.2</version>
     </dependency>
 
     <dependency>
