@@ -15,7 +15,7 @@
 
 /**
  * GUIChooser.java
- * Copyright (C) 2015 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2015-2016 University of Waikato, Hamilton, NZ
  */
 
 package nz.ac.waikato.cms.gui;
@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Allows user to choose tools.
@@ -49,6 +48,9 @@ public class GUIChooser
 
   /** the button for overlaying filenames. */
   protected JButton m_ButtonOverlayFilename;
+
+  /** the button for scripted PDF overlays. */
+  protected JButton m_ButtonScripredPDFOverlay;
 
   /** the button for help. */
   protected JButton m_ButtonHelp;
@@ -80,47 +82,40 @@ public class GUIChooser
     panel.add(new JLabel("Please choose"));
 
     m_ButtonHyperLinkGrades = new JButton("Hyperlink Grades");
-    m_ButtonHyperLinkGrades.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
+    m_ButtonHyperLinkGrades.addActionListener((ActionEvent e) -> {
 	BaseFrame frame = HyperLinkGradesGUI.createFrame();
 	frame.setDefaultCloseOperation(BaseFrame.DISPOSE_ON_CLOSE);
 	frame.setLocationRelativeTo(null);
 	frame.setVisible(true);
-      }
     });
     panel.add(m_ButtonHyperLinkGrades);
 
     m_ButtonOverlayFilename = new JButton("Overlay filename");
-    m_ButtonOverlayFilename.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
+    m_ButtonOverlayFilename.addActionListener((ActionEvent e) -> {
 	BaseFrame frame = OverlayFilenameGUI.createFrame();
 	frame.setDefaultCloseOperation(BaseFrame.DISPOSE_ON_CLOSE);
 	frame.setLocationRelativeTo(null);
 	frame.setVisible(true);
-      }
     });
     panel.add(m_ButtonOverlayFilename);
+
+    m_ButtonScripredPDFOverlay = new JButton("Scripted PDF Overlay");
+    m_ButtonScripredPDFOverlay.addActionListener((ActionEvent e) -> {
+	BaseFrame frame = ScriptedPDFOverlayGUI.createFrame();
+	frame.setDefaultCloseOperation(BaseFrame.DISPOSE_ON_CLOSE);
+	frame.setLocationRelativeTo(null);
+	frame.setVisible(true);
+    });
+    panel.add(m_ButtonScripredPDFOverlay);
 
     panel.add(new JLabel());
 
     m_ButtonHelp = new JButton("Help", GUIHelper.getIcon("help.gif"));
-    m_ButtonHelp.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-	BrowserHelper.openURL("https://github.com/fracpete/fcms-doc-modifier/wiki/Java-Tools");
-      }
-    });
+    m_ButtonHelp.addActionListener((ActionEvent e) -> BrowserHelper.openURL("https://github.com/fracpete/fcms-doc-modifier/wiki/Java-Tools"));
     panel.add(m_ButtonHelp);
 
     m_ButtonClose = new JButton("Close", GUIHelper.getIcon("stop.gif"));
-    m_ButtonClose.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-	GUIHelper.closeParent(GUIChooser.this);
-      }
-    });
+    m_ButtonClose.addActionListener((ActionEvent e) -> GUIHelper.closeParent(GUIChooser.this));
     panel.add(m_ButtonClose);
   }
 
