@@ -15,7 +15,7 @@
 
 /**
  * ScriptedPDFOverlay.java
- * Copyright (C) 2016 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2016-2017 University of Waikato, Hamilton, NZ
  */
 
 package nz.ac.waikato.cms.doc;
@@ -233,7 +233,7 @@ public class ScriptedPDFOverlay {
   public static void main(String[] args) throws Exception {
     ArgumentParser parser;
 
-    parser = ArgumentParsers.newArgumentParser("PDFOverlay");
+    parser = ArgumentParsers.newArgumentParser("ScriptedPDFOverlay");
     parser.description(
       "Applies a Groovy script to a PDF template using parameters from a CSV spreadsheet file.\n"
 	+ "One row in the spreadsheet corresponds to one generated output file.\n"
