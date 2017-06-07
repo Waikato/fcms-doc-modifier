@@ -20,17 +20,18 @@ Starting the user interface:
 * Linux/Mac: `bin/run`
 * Windows: `bin\run.bat`
 * with the following command:
-```
-  java -cp "lib/*" \
-    nz.ac.waikato.cms.gui.GUIChooser
-```
+
+  ```bash
+    java -cp "lib/*" \
+      nz.ac.waikato.cms.gui.GUIChooser
+  ```
 
 HyperLinkGrades
 ===============
 
 Example parameters for performing case-insensitive search and avoiding completed ones:
 
-```
+```bash
 java -cp "lib/*" \
   nz.ac.waikato.cms.doc.HyperLinkGrades \ 
   CMS-Undergrad.pdf \
@@ -44,7 +45,8 @@ HyperLinkGradesGUI
 ==================
 
 Starting the HyperLinkGrades user interface with the following command:
-```
+
+```bash
   java -cp "lib/*" \
     nz.ac.waikato.cms.gui.HyperLinkGradesGUI
 ```
@@ -54,7 +56,7 @@ OverlayFilename
 
 Example parameters for overlaying the filename (no path, no extension) on a PDF:
 
-```
+```bash
 java -cp "lib/*" \
   nz.ac.waikato.cms.doc.OverlayFilename \ 
   mypdf.pdf \
@@ -67,7 +69,21 @@ OverlayFilenameGUI
 ==================
 
 Starting the HyperLinkGrades user interface with the following command:
-```
+
+```bash
   java -cp "lib/*" \
     nz.ac.waikato.cms.gui.OverlayFilenameGUI
+```
+
+SimplePDFOverlay
+================
+
+Example parameters for overlaying text on a PDF:
+
+```bash
+java -cp "lib/*" \
+  nz.ac.waikato.cms.doc.SimplePDFOverlay \ 
+  mypdf.pdf \
+  instructions.txt \
+  mypdf_out.pdf
 ```
