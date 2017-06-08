@@ -25,6 +25,7 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Utilities;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
@@ -59,6 +60,8 @@ public class SimplePDFOverlay {
   public static final String OUTPUT = "output";
 
   public static final String PREFIX_COMMENT = "#";
+
+  public static final String PREFIX_UNITS = "units:";
 
   public static final String PREFIX_PAGE = "page:";
 
@@ -154,18 +157,36 @@ public class SimplePDFOverlay {
   }
 
   /**
-   * Parses the position string.
+   * Parses the location string.
    *
    * @param str		the string to parse
    * @param max		the maximum to use if position string is -1
-   * @return		the position
+   * @param units	the units the location is in (in|mm|pt)
+   * @return		the position in points
    */
-  protected float parsePosition(String str, float max) {
+  protected float parseLocation(String str, float max, String units) {
     float	result;
 
     result = Float.parseFloat(str);
-    if (result == -1)
+
+    if (result >= 0) {
+      switch (units) {
+	case "mm":
+	  result = Utilities.millimetersToPoints(result);
+	  break;
+	case "in":
+	  result = Utilities.inchesToPoints(result);
+	  break;
+	case "pt":
+	  // nothing to do
+	  break;
+	default:
+	  m_Logger.warning("Unknown units: " + units);
+      }
+    }
+    else {
       result = max;
+    }
 
     return result;
   }
@@ -182,6 +203,7 @@ public class SimplePDFOverlay {
     FileReader		freader;
     int			i;
     int 		lineNo;
+    String		units;
     int			pageNo;
     PdfReader 		reader;
     PdfStamper 		stamper;
@@ -201,6 +223,7 @@ public class SimplePDFOverlay {
       freader = new FileReader(m_Instructions);
       breader = new BufferedReader(freader);
       lineNo  = 0;
+      units   = "pt";
       pageNo  = 1;
       cb      = stamper.getOverContent(pageNo);
       font    = null;
@@ -210,7 +233,10 @@ public class SimplePDFOverlay {
 	  continue;
 	if (line.trim().length() == 0)
 	  continue;
-	if (line.startsWith(PREFIX_PAGE)) {
+	if (line.startsWith(PREFIX_UNITS)) {
+	  units = line.substring(PREFIX_UNITS.length()).trim().toLowerCase();
+	}
+	else if (line.startsWith(PREFIX_PAGE)) {
 	  pageNo = Integer.parseInt(line.substring(PREFIX_PAGE.length()).trim());
 	  cb     = stamper.getOverContent(pageNo);
 	}
@@ -229,12 +255,12 @@ public class SimplePDFOverlay {
 	  if (parts.length >= 7) {
 	    ct = new ColumnText(cb);
 	    ct.setSimpleColumn(
-	      parsePosition(parts[0], reader.getPageSize(pageNo).getWidth()),  // llx
-	      parsePosition(parts[1], reader.getPageSize(pageNo).getHeight()), // lly
-	      parsePosition(parts[2], reader.getPageSize(pageNo).getWidth()),  // urx
-	      parsePosition(parts[3], reader.getPageSize(pageNo).getHeight()), // ury
-	      Float.parseFloat(parts[4]),                                      // leading
-	      parseAlignment(parts[5]));                                       // alignment
+	      parseLocation(parts[0], reader.getPageSize(pageNo).getWidth(), units),  // llx
+	      parseLocation(parts[1], reader.getPageSize(pageNo).getHeight(), units),  // lly
+	      parseLocation(parts[2], reader.getPageSize(pageNo).getWidth(), units),  // urx
+	      parseLocation(parts[3], reader.getPageSize(pageNo).getHeight(), units),  // ury
+	      Float.parseFloat(parts[4]),                                              // leading
+	      parseAlignment(parts[5]));                                               // alignment
 	    text = new StringBuilder();
 	    for (i = 6; i < parts.length; i++) {
 	      if (text.length() > 0)
@@ -282,6 +308,8 @@ public class SimplePDFOverlay {
       "Applies the specified instructions file to the PDF as overlay.\n\n"
 	+ "Instructions:\n"
 	+ "- empty lines and lines starting with # are ignored\n"
+	+ "- The units used for the locations (can be supplied multiple times):\n"
+	+ "  units: pt|mm|in\n"
 	+ "- Selecting a page (page numbers are 1-based):\n"
 	+ "  page: <int>\n"
 	+ "- Setting a font:\n"

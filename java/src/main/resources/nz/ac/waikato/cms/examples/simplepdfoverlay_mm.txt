@@ -1,0 +1,46 @@
+# a simple example of overlaying a PDF with some text
+# line comments start with '#'
+
+# empty lines, just like comments, are ignored
+
+# define what units are used for the locations from now on
+#
+# format: in|mm|pt
+#
+# notes:
+# - default is 'pt'
+# - can be used multiple times
+units: mm
+
+# select a page
+#
+# format: <int>
+#
+# notes:
+# - page numbers are 1-based
+# - page 1 is automatically selected
+page: 1
+
+# set up a font
+#
+# format: <name> <size> <color>
+#
+# notes:
+# - color is in web-notation (hex): #RRGGBB
+font: Helvetica 18 FFFFFF
+
+# add some text in a rectangle at the specified location
+#
+# format: <llx> <lly> <urx> <ury> <leading> <alignment> <text>
+#
+# notes:
+# - ll = lower left corner
+# - ur = upper right corner
+# - if you use -1 for a X coordinate, this gets interpreted as page width
+# - if you use -1 for a Y coordinate, this gets interpreted as page height
+# - alignment: UNDEFINED|LEFT|CENTER|RIGHT|JUSTIFIED
+text: 0 70 -1 20 0 CENTER Albus Dumbledore
+
+# add some more text with a different font
+font: Helvetica 12 FFFFFF
+text: 0 65 -1 20 0 CENTER Professor
