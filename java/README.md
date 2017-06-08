@@ -3,6 +3,9 @@ Releases
 
 The following releases are available for download:
 
+* [0.0.10](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.10/fcms-doc-modifier-0.0.10-bin.zip)
+* [0.0.9](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.9/fcms-doc-modifier-0.0.9-bin.zip)
+* [0.0.8](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.8/fcms-doc-modifier-0.0.8-bin.zip)
 * [0.0.7](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.7/fcms-doc-modifier-0.0.7-bin.zip)
 * [0.0.6](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.6/fcms-doc-modifier-0.0.6-bin.zip)
 * [0.0.5](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.5/fcms-doc-modifier-0.0.5-bin.zip)
