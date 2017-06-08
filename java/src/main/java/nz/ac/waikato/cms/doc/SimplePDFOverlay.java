@@ -313,7 +313,7 @@ public class SimplePDFOverlay {
 	+ "- Selecting a page (page numbers are 1-based):\n"
 	+ "  page: <int>\n"
 	+ "- Setting a font:\n"
-	+ "  font: <name> <size> <color in #RRGGB>\n"
+	+ "  font: <name> <size> <color in #RRGGBB or RRGGBB>\n"
 	+ "- Placing text in a rectangle (ll=lower left, ur=upper right):\n"
 	+ "  text: <llx> <lly> <urx> <ury> <leading> <align> <text>\n"
 	+ "  align: UNDEFINED|LEFT|CENTER|RIGHT|JUSTIFIED");
