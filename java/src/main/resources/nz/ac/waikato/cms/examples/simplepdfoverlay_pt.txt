@@ -35,3 +35,36 @@ text: 0 50 -1 200 0 CENTER Albus Dumbledore
 # add some more text with a different font
 font: Helvetica 12 FFFFFF
 text: 0 50 -1 180 0 CENTER Professor
+
+# draw a line
+#
+# format: <x1> <y1> <x2> <y2> <line-width> <line-color>
+#
+# notes:
+# - stroke-color is in web-notation (hex): #RRGGBB or RRGGBB
+# - line width is a float
+line: 20 30 45 55 0.5 FFFFFF
+
+# draw a rectangle
+#
+# format: <x> <y> <w> <h> <line-width> <stroke-color> [fill-color]
+#
+# notes:
+# - stroke-color is in web-notation (hex): #RRGGBB or RRGGBB
+# - fill-color is in web-notation (hex): #RRGGBB or RRGGBB
+# - only if a fill-color is provided will the rectangle get filled
+# - line width is a float
+rect: 50 100 25 50 3 FFFFFF
+rect: 100 100 25 50 1 FFFFFF FF0000
+
+# draw an oval
+#
+# format: <x1> <y1> <x2> <y2> <line-width> <stroke-color> [fill-color]
+#
+# notes:
+# - stroke-color is in web-notation (hex): #RRGGBB or RRGGBB
+# - fill-color is in web-notation (hex): #RRGGBB or RRGGBB
+# - only if a fill-color is provided will the oval get filled
+# - line width is a float
+oval: 170 240 50 255 3 00FF00
+oval: 180 240 220 255 3 00FF00 FFFFFF

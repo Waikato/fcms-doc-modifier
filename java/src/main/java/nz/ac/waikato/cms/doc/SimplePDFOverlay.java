@@ -69,6 +69,24 @@ public class SimplePDFOverlay {
 
   public static final String PREFIX_TEXT = "text:";
 
+  public static final String PREFIX_LINE = "line:";
+
+  public static final String PREFIX_RECT = "rect:";
+
+  public static final String PREFIX_OVAL = "oval:";
+
+  public static final String FORMAT_FONT = "<name> <size> <color>";
+
+  public static final String FORMAT_TEXT = "<llx> <lly> <urx> <ury> <leading> <alignment> <text>";
+
+  public static final String FORMAT_LINE = "<x1> <y1> <x2> <x2> <line-width> <stroke-color>";
+
+  public static final String FORMAT_RECT = "<x> <y> <w> <h> <line-width> <stroke-color> [fill-color]";
+
+  public static final String FORMAT_OVAL = "<x1> <y1> <x2> <y2> <line-width> <stroke-color> [fill-color]";
+
+  public static final String VALUES_ALIGN = "UNDEFINED|LEFT|CENTER|RIGHT|JUSTIFIED";
+
   /** for logging. */
   protected Logger m_Logger;
 
@@ -102,10 +120,10 @@ public class SimplePDFOverlay {
     if (output.isDirectory())
       throw new IllegalArgumentException("Output file points to a directory: " + output);
 
-    m_Pdf = pdf;
+    m_Pdf          = pdf;
     m_Instructions = instructions;
-    m_Output      = output;
-    m_Logger      = Logger.getLogger(this.getClass().getName());
+    m_Output       = output;
+    m_Logger       = Logger.getLogger(this.getClass().getName());
   }
 
   /**
@@ -248,7 +266,7 @@ public class SimplePDFOverlay {
 	      Float.parseFloat(parts[1]),
 	      new BaseColor(parseColor(parts[2]).getRGB()));
 	  else
-	    m_Logger.warning("Font instruction not in expected format (<name> <size> <color>):\n" + line);
+	    m_Logger.warning("Font instruction not in expected format (" + FORMAT_FONT + "):\n" + line);
 	}
 	else if (line.startsWith(PREFIX_TEXT)) {
 	  parts = line.substring(PREFIX_TEXT.length()).trim().split(" ");
@@ -274,7 +292,76 @@ public class SimplePDFOverlay {
 	    ct.go();
 	  }
 	  else {
-	    m_Logger.warning("Text instruction not in expected format (<llx> <lly> <urx> <ury> <leading> <alignment> <text>):\n" + line);
+	    m_Logger.warning("Text instruction not in expected format (" + FORMAT_TEXT + "):\n" + line);
+	  }
+	}
+	else if (line.startsWith(PREFIX_LINE)) {
+	  parts = line.substring(PREFIX_LINE.length()).trim().split(" ");
+	  if (parts.length >= 6) {
+	    cb.saveState();
+	    cb.setLineWidth(Float.parseFloat(parts[4]));  // line width
+	    cb.setColorStroke(new BaseColor(parseColor(parts[5]).getRGB()));  // color
+	    cb.moveTo(
+	      parseLocation(parts[0], reader.getPageSize(pageNo).getWidth(), units),  // x
+	      parseLocation(parts[1], reader.getPageSize(pageNo).getWidth(), units)); // y
+	    cb.lineTo(
+	      parseLocation(parts[2], reader.getPageSize(pageNo).getWidth(), units),  // w
+	      parseLocation(parts[3], reader.getPageSize(pageNo).getWidth(), units)); // h
+	    cb.stroke();
+	    cb.restoreState();
+	  }
+	  else {
+	    m_Logger.warning("Line instruction not in expected format (" + FORMAT_LINE + "):\n" + line);
+	  }
+	}
+	else if (line.startsWith(PREFIX_RECT)) {
+	  parts = line.substring(PREFIX_RECT.length()).trim().split(" ");
+	  if (parts.length >= 6) {
+	    cb.saveState();
+	    cb.rectangle(
+	      parseLocation(parts[0], reader.getPageSize(pageNo).getWidth(), units),  // x
+	      parseLocation(parts[1], reader.getPageSize(pageNo).getWidth(), units),  // y
+	      parseLocation(parts[2], reader.getPageSize(pageNo).getWidth(), units),  // w
+	      parseLocation(parts[3], reader.getPageSize(pageNo).getWidth(), units)   // h
+	    );
+	    cb.setLineWidth(Float.parseFloat(parts[4]));  // line width
+	    cb.setColorStroke(new BaseColor(parseColor(parts[5]).getRGB()));  // stroke
+	    if (parts.length >= 7) {
+	      cb.setColorFill(new BaseColor(parseColor(parts[6]).getRGB()));  // fill
+	      cb.fillStroke();
+	    }
+	    else {
+	      cb.stroke();
+	    }
+	    cb.restoreState();
+	  }
+	  else {
+	    m_Logger.warning("Rectangle instruction not in expected format (" + FORMAT_RECT + "):\n" + line);
+	  }
+	}
+	else if (line.startsWith(PREFIX_OVAL)) {
+	  parts = line.substring(PREFIX_OVAL.length()).trim().split(" ");
+	  if (parts.length >= 6) {
+	    cb.saveState();
+	    cb.ellipse(
+	      parseLocation(parts[0], reader.getPageSize(pageNo).getWidth(), units),  // x1
+	      parseLocation(parts[1], reader.getPageSize(pageNo).getWidth(), units),  // y1
+	      parseLocation(parts[2], reader.getPageSize(pageNo).getWidth(), units),  // x2
+	      parseLocation(parts[3], reader.getPageSize(pageNo).getWidth(), units)   // y2
+	    );
+	    cb.setLineWidth(Float.parseFloat(parts[4]));  // line width
+	    cb.setColorStroke(new BaseColor(parseColor(parts[5]).getRGB()));  // stroke
+	    if (parts.length >= 7) {
+	      cb.setColorFill(new BaseColor(parseColor(parts[6]).getRGB()));  // fill
+	      cb.fillStroke();
+	    }
+	    else {
+	      cb.stroke();
+	    }
+	    cb.restoreState();
+	  }
+	  else {
+	    m_Logger.warning("Oval instruction not in expected format (" + FORMAT_OVAL + "):\n" + line);
 	  }
 	}
 	else {
@@ -313,10 +400,17 @@ public class SimplePDFOverlay {
 	+ "- Selecting a page (page numbers are 1-based):\n"
 	+ "  page: <int>\n"
 	+ "- Setting a font:\n"
-	+ "  font: <name> <size> <color in #RRGGBB or RRGGBB>\n"
+	+ "  font: " + FORMAT_FONT + "\n"
 	+ "- Placing text in a rectangle (ll=lower left, ur=upper right):\n"
-	+ "  text: <llx> <lly> <urx> <ury> <leading> <align> <text>\n"
-	+ "  align: UNDEFINED|LEFT|CENTER|RIGHT|JUSTIFIED");
+	+ "  text: " + FORMAT_TEXT + "\n"
+	+ "  align: " + VALUES_ALIGN + "\n"
+        + "- Drawing a line (color in #RRGGBB or RRGGBB):\n"
+        + "  line: " + FORMAT_LINE + "\n"
+        + "- Drawing a rectangle (colors in #RRGGBB or RRGGBB):\n"
+        + "  rect: " + FORMAT_RECT + "\n"
+        + "- Drawing an oval (colors in #RRGGBB or RRGGBB):\n"
+        + "  oval: " + FORMAT_OVAL + "\n"
+    );
     parser.addArgument(PDF)
       .metavar(PDF)
       .type(String.class)
