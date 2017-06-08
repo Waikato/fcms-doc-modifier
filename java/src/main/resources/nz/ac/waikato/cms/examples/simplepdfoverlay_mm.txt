@@ -26,7 +26,7 @@ page: 1
 # format: <name> <size> <color>
 #
 # notes:
-# - color is in web-notation (hex): #RRGGBB
+# - color is in web-notation (hex): #RRGGBB or RRGGBB
 font: Helvetica 18 FFFFFF
 
 # add some text in a rectangle at the specified location
