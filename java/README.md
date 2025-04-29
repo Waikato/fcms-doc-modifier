@@ -1,5 +1,4 @@
-Releases
-========
+# Releases
 
 The following releases are available for download:
 
@@ -16,8 +15,7 @@ The following releases are available for download:
 * [0.0.1](https://github.com/Waikato/fcms-doc-modifier/releases/download/java-0.0.1/fcms-doc-modifier-0.0.1-bin.zip)
 
 
-GUIChooser
-==========
+# GUIChooser
 
 Starting the user interface:
 
@@ -30,8 +28,7 @@ Starting the user interface:
       nz.ac.waikato.cms.gui.GUIChooser
   ```
 
-HyperLinkGrades
-===============
+# HyperLinkGrades
 
 Example parameters for performing case-insensitive search and avoiding completed ones:
 
@@ -45,8 +42,7 @@ java -cp "lib/*" \
   --nocompletions true
 ```
 
-HyperLinkGradesGUI
-==================
+# HyperLinkGradesGUI
 
 Starting the HyperLinkGrades user interface with the following command:
 
@@ -55,8 +51,7 @@ Starting the HyperLinkGrades user interface with the following command:
     nz.ac.waikato.cms.gui.HyperLinkGradesGUI
 ```
 
-OverlayFilename
-===============
+# OverlayFilename
 
 Example parameters for overlaying the filename (no path, no extension) on a PDF:
 
@@ -69,8 +64,7 @@ java -cp "lib/*" \
   --stripext true
 ```
 
-OverlayFilenameGUI
-==================
+# OverlayFilenameGUI
 
 Starting the HyperLinkGrades user interface with the following command:
 
@@ -79,8 +73,7 @@ Starting the HyperLinkGrades user interface with the following command:
     nz.ac.waikato.cms.gui.OverlayFilenameGUI
 ```
 
-SimplePDFOverlay
-================
+# SimplePDFOverlay
 
 Example parameters for overlaying text on a PDF:
 
